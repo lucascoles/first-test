@@ -1,4 +1,12 @@
 {
+  "name": "xyon-ad-generator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Ad creative generator for XYON Health with consistent product integration",
+  "main": "index.js",
+  "scripts": {
+    "generate": "node index.js"
+  },
   "dependencies": {
     "@fal-ai/client": "^1.9.5"
   }
