@@ -70,11 +70,15 @@ export const PRODUCTS = {
   },
 };
 
-/** Ad format specs — dimensions and placement context */
+/**
+ * Ad format specs.
+ * aspectRatio maps to Nano Banana 2's aspect_ratio param.
+ * resolution maps to Nano Banana 2's resolution param (0.5K | 1K | 2K | 4K).
+ */
 export const AD_FORMATS = {
-  instagramFeed:    { width: 1080, height: 1080, label: "Instagram Feed (1:1)" },
-  instagramStory:   { width: 1080, height: 1920, label: "Instagram Story (9:16)" },
-  facebookFeed:     { width: 1200, height: 628,  label: "Facebook Feed (1.91:1)" },
-  displayBanner:    { width: 728,  height: 90,   label: "Display Leaderboard" },
-  displayRectangle: { width: 300,  height: 250,  label: "Display Medium Rectangle" },
+  instagramFeed:    { width: 1080, height: 1080, aspectRatio: "1:1",  resolution: "1K", label: "Instagram Feed (1:1)" },
+  instagramStory:   { width: 1080, height: 1920, aspectRatio: "9:16", resolution: "1K", label: "Instagram Story (9:16)" },
+  facebookFeed:     { width: 1200, height: 628,  aspectRatio: "16:9", resolution: "1K", label: "Facebook Feed (16:9)" },
+  displayBanner:    { width: 728,  height: 90,   aspectRatio: "8:1",  resolution: "1K", label: "Display Leaderboard (8:1)" },
+  displayRectangle: { width: 300,  height: 250,  aspectRatio: "5:4",  resolution: "1K", label: "Display Medium Rectangle (5:4)" },
 };
