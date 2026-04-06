@@ -318,3 +318,364 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
   <div class="dp-inner" id="dp-inner"></div>
 </div>
 
+<script>
+const AGENTS=[
+  {code:'A-01',name:'SCRAPER',title:'Website Scraper',color:'#e05c3a',s2:'Crawling XYONHealth.com',
+   sp:[[0,1,0,0,0,1,0],[1,1,0,1,0,1,1],[0,1,0,1,0,1,0],[0,1,1,1,1,1,0],[0,0,1,0,1,0,0],[0,1,0,0,0,1,0],[1,0,0,0,0,0,1]]},
+  {code:'A-02',name:'GENERATOR',title:'Fal.ai Image Gen',color:'#9b6fd4',s2:'Running Nano Banana 2',
+   sp:[[0,0,0,1,0,0,0],[0,1,0,1,0,1,0],[0,0,1,1,1,0,0],[1,1,1,1,1,1,1],[0,0,1,1,1,0,0],[0,1,0,1,0,1,0],[0,0,0,1,0,0,0]]},
+  {code:'A-03',name:'PUBLISHER',title:'Meta Publisher',color:'#e09020',s2:'Uploading 3 creatives',
+   sp:[[0,0,0,1,0,0,0],[0,0,1,1,1,0,0],[0,1,1,1,1,1,0],[0,0,0,1,0,0,0],[0,0,0,1,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,1,1,1]]},
+  {code:'A-04',name:'TRACKER',title:'Performance Tracker',color:'#6fbd3a',s2:'Learning loop: 94%',
+   sp:[[0,0,0,0,0,0,1],[0,0,0,0,0,1,1],[0,0,0,1,0,1,1],[0,0,0,1,0,1,1],[0,1,0,1,0,1,1],[0,1,0,1,0,1,1],[1,1,1,1,1,1,1]]},
+];
+
+const ADS=[
+  {id:'AD-001',name:'Combo Gel — IG Feed Hero',hl:'One gel. Two proven actives.',obj:'Conversions',fmt:'Image · 1:1',st:'active',roas:5.2,ctr:3.8,spend:3240,conv:142,impr:89200,ai:1,g:'linear-gradient(145deg,#1a0a2e,#2d1060,#9b6fd4)'},
+  {id:'AD-002',name:'Finasteride Gel — Story',hl:'Doctor-formulated. Clinically targeted.',obj:'Traffic',fmt:'Image · 9:16',st:'active',roas:4.8,ctr:2.9,spend:2180,conv:98,impr:67400,ai:2,g:'linear-gradient(145deg,#0a1a2e,#0a3060,#4a9eff)'},
+  {id:'AD-003',name:'DHT Shampoo — FB Feed',hl:'Your shampoo should work harder.',obj:'Reach',fmt:'Image · 16:9',st:'active',roas:3.8,ctr:1.6,spend:1890,conv:67,impr:112000,ai:0,g:'linear-gradient(145deg,#1a1200,#3a2800,#c9a96e)'},
+  {id:'AD-004',name:'Dutasteride — IG Feed',hl:'Stronger DHT blockade.',obj:'Conversions',fmt:'Image · 1:1',st:'learning',roas:2.9,ctr:2.1,spend:980,conv:28,impr:41000,ai:3,g:'linear-gradient(145deg,#0a1a0a,#0a3a0a,#6fbd3a)'},
+  {id:'AD-005',name:'Minoxidil Tablets — FB',hl:'Stimulate growth from within.',obj:'Conversions',fmt:'Image · 16:9',st:'active',roas:4.1,ctr:2.4,spend:2640,conv:103,impr:73600,ai:1,g:'linear-gradient(145deg,#1a0a2e,#3a1060,#9b6fd4)'},
+  {id:'AD-006',name:'Hair Serum Bundle — IG',hl:'The complete hair system.',obj:'Catalog Sales',fmt:'Carousel · 1:1',st:'paused',roas:3.2,ctr:1.8,spend:1340,conv:41,impr:55300,ai:2,g:'linear-gradient(145deg,#1a0a0a,#3a0a0a,#e05c3a)'},
+  {id:'AD-007',name:'Combo Gel — Reels',hl:'Real results. Real fast.',obj:'Video Views',fmt:'Video · 9:16',st:'active',roas:5.6,ctr:4.2,spend:4120,conv:219,impr:98700,ai:0,g:'linear-gradient(145deg,#0e0e1a,#1a1a3a,#6a6ad4)'},
+  {id:'AD-008',name:'DHT Conditioner — IG',hl:'Strengthen while you wash.',obj:'Traffic',fmt:'Image · 1:1',st:'active',roas:4.3,ctr:2.7,spend:1760,conv:72,impr:59200,ai:3,g:'linear-gradient(145deg,#001a12,#003a20,#3ab8a0)'},
+  {id:'AD-009',name:'Oral Finasteride — FB',hl:'Simple. Once daily. Effective.',obj:'Conversions',fmt:'Image · 16:9',st:'paused',roas:2.4,ctr:1.2,spend:890,conv:19,impr:38900,ai:1,g:'linear-gradient(145deg,#1a100a,#3a2010,#c9a96e)'},
+  {id:'AD-010',name:'Combo Gel UGC — IG',hl:'See what real customers say.',obj:'Conversions',fmt:'Video · 1:1',st:'learning',roas:3.1,ctr:3.1,spend:1560,conv:45,impr:46800,ai:0,g:'linear-gradient(145deg,#10101a,#20203a,#4a4a9e)'},
+  {id:'AD-011',name:'DHT Shampoo Bundle',hl:'Block DHT. Every wash.',obj:'Catalog Sales',fmt:'Carousel · 1:1',st:'active',roas:4.7,ctr:2.2,spend:2230,conv:113,impr:71400,ai:3,g:'linear-gradient(145deg,#001a10,#003a20,#6fbd3a)'},
+];
+
+const KPIS=[
+  {lbl:'Total Spend', val:24830,pre:'$',suf:'', spark:[3200,3400,3100,3600,3800,3500,3840],chg:'+12.4%',up:true, c:'#c9a96e'},
+  {lbl:'Revenue',     val:118450,pre:'$',suf:'',spark:[15200,16800,15400,17600,18200,17100,18150],chg:'+18.2%',up:true, c:'#6fbd3a'},
+  {lbl:'Impressions', val:2.41, pre:'', suf:'M',spark:[1.8,2.0,1.9,2.2,2.5,2.3,2.4],chg:'+8.7%', up:true, c:'#4a9eff'},
+  {lbl:'Conversions', val:847,  pre:'', suf:'', spark:[102,118,98,125,134,115,135],chg:'+22.1%',up:true, c:'#9b6fd4'},
+  {lbl:'Active Ads',  val:7,    pre:'', suf:'', spark:[6,7,7,7,8,7,7],chg:'0%',   up:true, c:'#e09020'},
+];
+
+const BUDGETS=[
+  {lbl:'Topical Combo',   pct:62,c:'#9b6fd4'},
+  {lbl:'Finasteride Gel', pct:41,c:'#4a9eff'},
+  {lbl:'DHT Shampoo',     pct:28,c:'#c9a96e'},
+  {lbl:'Video Creatives', pct:55,c:'#6fbd3a'},
+];
+
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SPEND_D=[3200,3400,3100,3600,3800,3500,3840];
+const REV_D=[15200,16800,15400,17600,18200,17100,18150];
+
+const ACTIONS=[
+  ['🌐 Crawling product pages','📦 Indexing new assets','🔍 Detecting price changes','📸 Extracting brand images'],
+  ['🎨 Generating variation 51/100','✨ Applying brand-lock prompts','🧠 Running thinking_level:high','🖼 Rendering IG Story format'],
+  ['📤 Uploading to Meta Ads','📋 Checking policy compliance','💰 Adjusting daily budgets','🔄 Syncing creative library'],
+  ['📊 Analyzing ROAS trends','🔁 Running learning loop','⚡ Detecting CTR anomalies','📈 Compiling performance report'],
+];
+
+const LOGS=[
+  [0,'Crawling /products/topical-finasteride — 24 assets found'],
+  [1,'Variation 047/100 → seed:1046, ROAS estimate: 5.1'],
+  [2,'AD-007 uploaded → Meta review queue (ETA 2h)'],
+  [3,'ROAS alert: AD-001 +0.3 → 5.2 (7-day rolling avg)'],
+  [0,'Asset refresh: combo-gel-v3.jpg detected and indexed'],
+  [1,'Nano Banana 2 → thinking_level:high → 8.2s render'],
+  [2,'AD-011 activated → daily budget $120 allocated'],
+  [3,'AD-009 learning complete — recommend reallocation'],
+  [0,'Full scrape done: 11 products, 46 images cached'],
+  [1,'Variation 083/100 → seed:1082, format: 9:16 Story'],
+  [2,'AD-004 learning: 28/50 conversions accumulated'],
+  [3,'CTR spike: AD-007 +1.1pp — flagged for budget scale'],
+  [0,'Price change detected: Finasteride $99→$89 promo'],
+  [1,'Batch complete: 100 variations, avg 7.8s/image'],
+  [2,'Budget shift: +$40/day to AD-001, AD-007'],
+  [3,'Weekly report: 847 conv · $4.76 avg ROAS · $24,830 spend'],
+];
+</script>
+<script>
+// ── Utilities ──────────────────────────────────────────
+function rc(r){return r>=4.5?'#6fbd3a':r>=3.5?'#3ab8a0':r>=2.5?'#c9a96e':'#e05c3a'}
+function fm(n){return n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+n.toLocaleString()}
+
+function sparkPath(data,w,h){
+  const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1;
+  return data.map((v,i)=>`${i?'L':'M'}${((i/(data.length-1))*w).toFixed(1)},${(h-((v-mn)/rng)*(h-2)-1).toFixed(1)}`).join(' ');
+}
+
+function sprite(grid,color,sz){
+  const cs=sz/7;
+  const cells=grid.flatMap((row,ry)=>row.map((on,cx)=>on?`<rect x="${(cx*cs).toFixed(1)}" y="${(ry*cs).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" fill="${color}"/>`:'').filter(Boolean)).join('');
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" style="image-rendering:pixelated;display:block">${cells}</svg>`;
+}
+
+function animCount(el,target,dur,fmt){
+  const t0=performance.now();
+  (function step(now){
+    const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=fmt(target*e);
+    if(p<1)requestAnimationFrame(step);
+  })(t0);
+}
+
+// ── Agents ─────────────────────────────────────────────
+function renderAgents(){
+  document.getElementById('agent-cards').innerHTML=AGENTS.map((a,i)=>`
+    <div class="agent-card" onclick="selAgent(this)" style="color:${a.color}">
+      <div class="ac-top">
+        ${sprite(a.sp,a.color,28)}
+        <div class="ai">
+          <div class="ai-code">${a.code}</div>
+          <div class="ai-name" style="color:${a.color}">${a.name}</div>
+          <div class="ai-title">${a.title}</div>
+        </div>
+      </div>
+      <div class="ac-status">
+        <div class="dots">
+          <div class="dot" style="background:${a.color}"></div>
+          <div class="dot" style="background:${a.color}"></div>
+          <div class="dot" style="background:${a.color}"></div>
+        </div>
+        <span style="color:${a.color};opacity:.7">${a.s2}</span>
+      </div>
+    </div>`).join('');
+}
+function selAgent(el){document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
+
+// ── Budget Bars ────────────────────────────────────────
+function renderBudgets(){
+  document.getElementById('budget-bars').innerHTML=BUDGETS.map(b=>`
+    <div class="bitem">
+      <div class="bitem-top"><span class="blabel">${b.lbl}</span><span class="bpct" style="color:${b.c}">${b.pct}%</span></div>
+      <div class="btrack"><div class="bfill" data-p="${b.pct}" style="background:${b.c}"></div></div>
+    </div>`).join('');
+  requestAnimationFrame(()=>document.querySelectorAll('.bfill').forEach(el=>el.style.width=el.dataset.p+'%'));
+}
+
+// ── KPIs ───────────────────────────────────────────────
+function renderKPIs(){
+  document.getElementById('kpi-row').innerHTML=KPIS.map((k,i)=>{
+    const sp=sparkPath(k.spark,60,22);
+    return `<div class="kpi">
+      <div class="kpi-acc" style="background:${k.c}"></div>
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val" id="kv${i}" style="color:${k.c}">0</div>
+      <div class="kpi-bot">
+        <span class="kchg ${k.up?'up':'dn'}">${k.chg}</span>
+        <svg viewBox="0 0 60 22" width="60" height="22" style="overflow:visible">
+          <path d="${sp}" fill="none" stroke="${k.c}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
+        </svg>
+      </div>
+    </div>`;
+  }).join('');
+  KPIS.forEach((k,i)=>{
+    const el=document.getElementById('kv'+i);
+    if(k.suf==='M') animCount(el,k.val,1400,v=>v.toFixed(2)+'M');
+    else if(k.pre==='$') animCount(el,k.val,1600,v=>'$'+Math.round(v).toLocaleString());
+    else animCount(el,k.val,1200,v=>Math.round(v).toLocaleString());
+  });
+}
+
+// ── Ad Grid ────────────────────────────────────────────
+function renderAds(){
+  const seed=[...Array(11)].map((_,i)=>40+((i*37+13)%51));
+  document.getElementById('ad-grid').innerHTML=ADS.map((ad,i)=>{
+    const ag=AGENTS[ad.ai],rac=rc(ad.roas);
+    const act=ACTIONS[ad.ai][i%ACTIONS[ad.ai].length];
+    const icon=act.split(' ')[0],txt=act.slice(act.indexOf(' ')+1);
+    const sp=sparkPath([ad.roas*.8,ad.roas*.9,ad.roas*.85,ad.roas,ad.roas*1.05,ad.roas*.95,ad.roas],44,14);
+    const isVid=ad.fmt.toLowerCase().includes('video');
+    return `<div class="adc" data-st="${ad.st}" data-fmt="${isVid?'video':'image'}" data-id="${ad.id}" onclick="openDetail(${i})">
+      <div class="ad-img">
+        <div class="ad-img-bg" style="background:${ad.g}"></div>
+        <div class="badge-tl">${ad.id}</div>
+        <div class="status-b ${ad.st}">${ad.st.toUpperCase()}</div>
+        <div class="agt-ov">
+          ${sprite(ag.sp,ag.color,16)}
+          <div><div class="agt-nm" style="color:${ag.color}">${ag.name}</div><div class="agt-rl">${ag.title}</div></div>
+        </div>
+      </div>
+      <div class="ad-body">
+        <div class="ad-name">${ad.name}</div>
+        <div class="ad-hl">${ad.hl}</div>
+        <div class="ad-tags"><span class="ad-tag">${ad.obj}</span><span class="ad-tag">${ad.fmt}</span></div>
+        <div class="ad-met">
+          <div class="am"><div class="am-lbl">Spend</div><div class="am-val">${fm(ad.spend)}</div></div>
+          <div class="am"><div class="am-lbl">ROAS</div><div class="am-val" style="color:${rac}">${ad.roas}x</div></div>
+          <div class="am"><div class="am-lbl">CTR</div><div class="am-val">${ad.ctr}%</div></div>
+        </div>
+        <div class="ad-act" style="border-left:2px solid ${ag.color}">
+          <span class="act-icon">${icon}</span>
+          <span class="act-txt">${txt}</span>
+          <svg viewBox="0 0 44 14" width="44" height="14">
+            <path d="${sp}" fill="none" stroke="${ag.color}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="ad-bbar"><div class="ad-bfill" data-p="${seed[i]}" style="background:${ag.color}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+  requestAnimationFrame(()=>document.querySelectorAll('.ad-bfill').forEach(el=>el.style.width=el.dataset.p+'%'));
+}
+
+// ── Filter ─────────────────────────────────────────────
+function filterAds(chip){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  chip.classList.add('on');
+  const f=chip.dataset.f;
+  document.querySelectorAll('.adc').forEach(card=>{
+    const show=f==='all'||card.dataset.st===f||card.dataset.fmt===f;
+    card.classList.toggle('hide',!show);
+  });
+}
+
+// ── Chart ──────────────────────────────────────────────
+function renderChart(){
+  const svg=document.getElementById('perf-chart');
+  const xs=[28,106,184,262,340,418,496];
+  const yb=108,yt=8,h=yb-yt;
+  const smn=Math.min(...SPEND_D),smx=Math.max(...SPEND_D);
+  const rmn=Math.min(...REV_D),rmx=Math.max(...REV_D);
+  const sy=v=>yb-((v-smn)/(smx-smn))*h;
+  const ry=v=>yb-((v-rmn)/(rmx-rmn))*h;
+  const spts=SPEND_D.map((v,i)=>`${i?'L':'M'}${xs[i]},${sy(v).toFixed(1)}`).join(' ');
+  const rpts=REV_D.map((v,i)=>`${i?'L':'M'}${xs[i]},${ry(v).toFixed(1)}`).join(' ');
+  const grid=[.25,.5,.75].map(t=>`<line x1="18" y1="${(yb-t*h).toFixed(1)}" x2="530" y2="${(yb-t*h).toFixed(1)}" stroke="#2a2a35" stroke-width="1"/>`).join('');
+  const lbls=DAYS.map((d,i)=>`<text x="${xs[i]}" y="120" text-anchor="middle" fill="#3a3a50" font-size="9" font-family="IBM Plex Mono,monospace">${d}</text>`).join('');
+  svg.innerHTML=`<defs>
+    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c9a96e" stop-opacity=".28"/><stop offset="100%" stop-color="#c9a96e" stop-opacity="0"/></linearGradient>
+    <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6fbd3a" stop-opacity=".22"/><stop offset="100%" stop-color="#6fbd3a" stop-opacity="0"/></linearGradient>
+  </defs>
+  ${grid}
+  <path d="${rpts} L${xs[6]},${yb} L${xs[0]},${yb} Z" fill="url(#rg)"/>
+  <path d="${spts} L${xs[6]},${yb} L${xs[0]},${yb} Z" fill="url(#sg)"/>
+  <path d="${rpts}" fill="none" stroke="#6fbd3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${spts}" fill="none" stroke="#c9a96e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  ${SPEND_D.map((v,i)=>`<circle cx="${xs[i]}" cy="${sy(v).toFixed(1)}" r="2.5" fill="#c9a96e"/>`).join('')}
+  ${REV_D.map((v,i)=>`<circle cx="${xs[i]}" cy="${ry(v).toFixed(1)}" r="2.5" fill="#6fbd3a"/>`).join('')}
+  ${lbls}`;
+}
+</script>
+<script>
+// ── Terminal ───────────────────────────────────────────
+let logIdx=0;
+function addLog(){
+  const [ai,msg]=LOGS[logIdx%LOGS.length];
+  const ag=AGENTS[ai];
+  const n=new Date(),ts=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+  const t=document.getElementById('terminal');
+  const ln=document.createElement('div');
+  ln.className='log-ln';
+  ln.innerHTML=`<span class="lt">${ts}</span><span class="la" style="color:${ag.color}">${ag.code}</span><span class="lm">${msg}</span>`;
+  t.appendChild(ln);
+  while(t.children.length>14)t.removeChild(t.firstChild);
+  t.scrollTop=t.scrollHeight;
+  logIdx++;
+}
+
+// ── Detail Panel ───────────────────────────────────────
+function openDetail(idx){
+  const ad=ADS[idx],ag=AGENTS[ad.ai],rac=rc(ad.roas);
+  const rev=Math.round(ad.spend*ad.roas);
+  const cpc=(ad.spend/(ad.impr*ad.ctr/100)).toFixed(2);
+  const recs=getRecs(ad);
+  document.getElementById('dp-inner').innerHTML=`
+    <div class="dp-img">
+      <div class="dp-img-bg" style="background:${ad.g}"></div>
+      <div class="dp-img-ov"></div>
+      <div class="dp-img-bot">
+        <div class="dp-adname">${ad.name}</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="status-b ${ad.st}" style="position:static">${ad.st.toUpperCase()}</span>
+          <span style="font-size:10px;color:rgba(255,255,255,.45)">${ad.fmt}</span>
+        </div>
+      </div>
+    </div>
+    <div class="dp-body">
+      <div class="dp-sec">Performance Metrics</div>
+      <div class="dp-mets">
+        <div class="dp-m"><div class="dp-ml">Spend</div><div class="dp-mv">${fm(ad.spend)}</div></div>
+        <div class="dp-m"><div class="dp-ml">Revenue</div><div class="dp-mv" style="color:var(--green)">$${rev.toLocaleString()}</div></div>
+        <div class="dp-m"><div class="dp-ml">ROAS</div><div class="dp-mv" style="color:${rac}">${ad.roas}x</div></div>
+        <div class="dp-m"><div class="dp-ml">CTR</div><div class="dp-mv">${ad.ctr}%</div></div>
+        <div class="dp-m"><div class="dp-ml">Conversions</div><div class="dp-mv">${ad.conv}</div></div>
+        <div class="dp-m"><div class="dp-ml">CPC</div><div class="dp-mv">$${cpc}</div></div>
+      </div>
+      <div class="dp-sec">Agent Analysis</div>
+      <div class="analysis">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          ${sprite(ag.sp,ag.color,18)}
+          <span style="color:${ag.color};font-weight:600">${ag.code} ${ag.name}</span>
+          <span style="color:var(--text3);margin-left:2px">${ag.title}</span>
+        </div>
+        <div class="aln"><span style="color:${ag.color}">→</span><span>${ACTIONS[ad.ai][0].slice(ACTIONS[ad.ai][0].indexOf(' ')+1)}</span></div>
+        <div class="aln"><span style="color:${ag.color}">→</span><span>${ACTIONS[ad.ai][1].slice(ACTIONS[ad.ai][1].indexOf(' ')+1)}</span></div>
+      </div>
+      <div class="dp-sec">Recommendations</div>
+      ${recs.map(r=>`<div class="rec ${r.cl}"><div class="rec-ico">${r.ico}</div><div class="rec-txt"><strong>${r.ttl}</strong><span>${r.body}</span></div></div>`).join('')}
+    </div>`;
+  document.getElementById('dp').classList.add('open');
+  document.getElementById('bk').classList.add('open');
+  document.querySelectorAll('.adc').forEach(c=>c.classList.remove('sel'));
+  document.querySelector(`[data-id="${ad.id}"]`)?.classList.add('sel');
+}
+
+function getRecs(ad){
+  if(ad.roas>=4.5) return [
+    {ico:'📈',cl:'g', ttl:'Scale Budget',            body:`ROAS of ${ad.roas}x is above target. Increase daily budget 20–30% to maximize returns.`},
+    {ico:'🔁',cl:'au',ttl:'Duplicate for A/B Test',  body:'Clone with a new headline variant to test copy sensitivity at current scale.'},
+    {ico:'🧠',cl:'b', ttl:'Broaden Audience',        body:'Strong signal — try expanding to 30–55 lookalike audiences for incremental reach.'},
+  ];
+  if(ad.st==='learning') return [
+    {ico:'⏳',cl:'b', ttl:'In Learning Phase',       body:`${ad.conv}/50 conversions so far. Avoid edits until learning phase completes.`},
+    {ico:'💰',cl:'au',ttl:'Maintain Budget Stability',body:'Keep spend stable — fluctuations slow Meta\'s delivery optimization.'},
+    {ico:'📊',cl:'g', ttl:'Monitor CTR',             body:`CTR of ${ad.ctr}% is ${ad.ctr>2.5?'healthy — hold steady':'below avg — consider a creative refresh if it drops below 1.5%'}.`},
+  ];
+  if(ad.st==='paused') return [
+    {ico:'⚠️',cl:'au',ttl:'Review Before Reactivating',body:`ROAS of ${ad.roas}x is below the 3.5x target threshold. Refresh creative before restarting.`},
+    {ico:'🎨',cl:'b', ttl:'Generate New Variations',  body:'Run GENERATOR agent: 5 new Nano Banana 2 variations with different hooks and moods.'},
+    {ico:'🎯',cl:'g', ttl:'Narrow Audience',          body:'Tighten targeting to high-intent: men 28–42 with active hair loss interest signals.'},
+  ];
+  return [
+    {ico:'🔍',cl:'au',ttl:'Monitor Closely',          body:`ROAS of ${ad.roas}x is within range. Watch for trend changes over the next 3 days.`},
+    {ico:'📝',cl:'b', ttl:'Test New Copy',             body:'Try headline variants emphasizing the SiloxysSystem™ targeted delivery advantage.'},
+    {ico:'📐',cl:'g', ttl:'Test New Format',           body:'If running image, test a Reels video variant — typically delivers +30% CTR.'},
+  ];
+}
+
+function closeDetail(){
+  document.getElementById('dp').classList.remove('open');
+  document.getElementById('bk').classList.remove('open');
+  document.querySelectorAll('.adc').forEach(c=>c.classList.remove('sel'));
+}
+
+// ── Header controls ────────────────────────────────────
+function switchTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on')}
+
+let syncT;
+function doSync(){
+  const b=document.getElementById('sync-btn');
+  b.textContent='↻ Syncing...';b.className='sync-btn sy';
+  clearTimeout(syncT);
+  syncT=setTimeout(()=>{
+    b.textContent='✓ Synced';b.className='sync-btn sd';
+    syncT=setTimeout(()=>{b.textContent='⟳ Sync';b.className='sync-btn'},2000);
+  },1800);
+}
+
+function updateClock(){
+  const n=new Date();
+  document.getElementById('hdr-date').textContent=
+    n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+
+    ' · '+n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+// ── Init ───────────────────────────────────────────────
+renderAgents();
+renderBudgets();
+renderKPIs();
+renderAds();
+renderChart();
+for(let i=0;i<6;i++) addLog();
+setInterval(addLog,3500);
+updateClock();
+setInterval(updateClock,1000);
+</script>
+</body>
+</html>
