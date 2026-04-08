@@ -302,7 +302,389 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 </div>
 
 <script>
-/* JS will be added in next step */
+// =====================================================================
+// XYON Command Centre — Dashboard JavaScript
+// Connects to Express backend at /api/* endpoints
+// =====================================================================
+
+const API = '';  // Same origin — no prefix needed
+
+// --------------- State ---------------
+let allAds = [];
+let allInspiration = [];
+let currentFilter = 'all';
+let currentInspFilter = 'all';
+let sortCol = 'spend_7d';
+let sortDir = -1; // -1 = descending
+let selectedAdId = null;
+
+// --------------- Init ---------------
+document.addEventListener('DOMContentLoaded', () => {
+  setupTabs();
+  setupFilters();
+  setupInspFilters();
+  setupTableSort();
+  loadSummary();
+  loadAds();
+});
+
+// --------------- Tab Switching ---------------
+function setupTabs() {
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+      btn.classList.add('on');
+      const tabId = btn.dataset.tab;
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      // Lazy-load inspiration on first visit
+      if (tabId === 'inspiration' && allInspiration.length === 0) loadInspiration();
+    });
+  });
+}
+
+// --------------- KPI Summary ---------------
+async function loadSummary() {
+  try {
+    const res = await fetch(API + '/api/summary');
+    const d = await res.json();
+    document.getElementById('kpi-spend').textContent = '$' + formatNum(d.totalSpend);
+    document.getElementById('kpi-consultations').textContent = formatNum(d.totalConsultations);
+    document.getElementById('kpi-ctr').textContent = d.avgCtr.toFixed(2) + '%';
+    document.getElementById('kpi-active').textContent = d.activeAds;
+    document.getElementById('kpi-freq').textContent = d.avgFrequency.toFixed(2);
+  } catch (e) {
+    console.warn('Summary fetch failed:', e);
+  }
+}
+
+// --------------- Ad Table ---------------
+async function loadAds() {
+  try {
+    const res = await fetch(API + '/api/ads');
+    allAds = await res.json();
+    renderAdTable();
+  } catch (e) {
+    console.warn('Ads fetch failed:', e);
+  }
+}
+
+function renderAdTable() {
+  const tbody = document.getElementById('adTableBody');
+  let filtered = allAds;
+
+  // Apply filter
+  if (currentFilter === 'meta' || currentFilter === 'tiktok' || currentFilter === 'reddit') {
+    filtered = filtered.filter(a => a.platform === currentFilter);
+  } else if (currentFilter === 'active') {
+    filtered = filtered.filter(a => a.status === 'ACTIVE');
+  } else if (currentFilter === 'paused') {
+    filtered = filtered.filter(a => a.status === 'PAUSED');
+  }
+
+  // Sort
+  filtered.sort((a, b) => {
+    let va = a[sortCol], vb = b[sortCol];
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    if (va == null) va = 0;
+    if (vb == null) vb = 0;
+    if (va < vb) return -1 * sortDir;
+    if (va > vb) return 1 * sortDir;
+    return 0;
+  });
+
+  document.getElementById('adCount').textContent = filtered.length + ' ads';
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty"><div class="empty-icon">&#9678;</div><div class="empty-msg">No ads match this filter. Try "Sync Now" if data hasn\'t been fetched yet.</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(ad => {
+    const fatigue = ad.latest_fatigue != null ? ad.latest_fatigue : null;
+    const fatigueClass = fatigue == null ? '' : fatigue <= 30 ? 'healthy' : fatigue <= 60 ? 'watch' : fatigue <= 80 ? 'warning' : 'critical';
+    const fatigueLabel = fatigue == null ? '--' : Math.round(fatigue);
+    const statusLower = (ad.status || '').toLowerCase();
+
+    return '<tr data-id="' + ad.id + '" class="' + (ad.id === selectedAdId ? 'selected' : '') + '" onclick="openDetail(\'' + ad.id + '\')">'
+      + '<td><span class="plat-badge ' + ad.platform + '">' + ad.platform + '</span></td>'
+      + '<td>' + esc(ad.ad_name || ad.id) + '</td>'
+      + '<td><span class="status-dot ' + statusLower + '"></span>' + esc(ad.status || '--') + '</td>'
+      + '<td class="mono">$' + formatNum(ad.spend_7d || 0) + '</td>'
+      + '<td class="mono">' + ((ad.avg_ctr_7d || 0)).toFixed(2) + '%</td>'
+      + '<td class="mono">' + (ad.platform === 'meta' ? (ad.avg_frequency_7d || 0).toFixed(2) : '--') + '</td>'
+      + '<td class="mono">' + (ad.platform === 'tiktok' ? ((ad.avg_thumb_stop_7d || 0) * 100).toFixed(1) + '%' : '--') + '</td>'
+      + '<td class="mono">' + (ad.consultations_7d || 0) + '</td>'
+      + '<td class="mono">$' + formatNum(ad.avg_cpp_7d || 0) + '</td>'
+      + '<td>' + (fatigue != null ? '<span class="fatigue-pill ' + fatigueClass + '">' + fatigueLabel + '</span>' : '--') + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+// --------------- Table Sorting ---------------
+function setupTableSort() {
+  document.querySelectorAll('.ad-table thead th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (sortCol === col) {
+        sortDir *= -1;
+      } else {
+        sortCol = col;
+        sortDir = -1;
+      }
+      // Update header UI
+      document.querySelectorAll('.ad-table thead th').forEach(h => h.classList.remove('sorted'));
+      th.classList.add('sorted');
+      th.querySelector('.sort-arrow').innerHTML = sortDir === -1 ? '&#9660;' : '&#9650;';
+      renderAdTable();
+    });
+  });
+}
+
+// --------------- Filters ---------------
+function setupFilters() {
+  document.querySelectorAll('#filters .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#filters .chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+      currentFilter = chip.dataset.filter;
+      renderAdTable();
+    });
+  });
+}
+
+// --------------- Detail Panel ---------------
+async function openDetail(adId) {
+  selectedAdId = adId;
+  renderAdTable(); // Highlight selected row
+  const dp = document.getElementById('dp');
+  const overlay = document.getElementById('dpOverlay');
+  const content = document.getElementById('dpContent');
+  content.innerHTML = '<div class="empty"><div class="empty-msg">Loading...</div></div>';
+  dp.classList.add('open');
+  overlay.classList.add('open');
+
+  try {
+    const [detailRes, suggestRes] = await Promise.all([
+      fetch(API + '/api/ads/' + adId),
+      fetch(API + '/api/ads/' + adId + '/suggestions')
+    ]);
+    const detail = await detailRes.json();
+    const suggestions = await suggestRes.json();
+    renderDetail(detail, suggestions);
+  } catch (e) {
+    content.innerHTML = '<div class="empty"><div class="empty-msg">Failed to load detail: ' + esc(e.message) + '</div></div>';
+  }
+}
+
+function closeDetail() {
+  document.getElementById('dp').classList.remove('open');
+  document.getElementById('dpOverlay').classList.remove('open');
+  selectedAdId = null;
+  renderAdTable();
+}
+
+function renderDetail(detail, suggestions) {
+  const ad = detail.ad;
+  const history = detail.history || [];
+  const fatigue = detail.fatigue || {};
+  const suggs = suggestions.live || [];
+
+  const fatigueScore = fatigue.score != null ? fatigue.score : '--';
+  const fatigueClass = fatigue.score == null ? '' : fatigue.score <= 30 ? 'healthy' : fatigue.score <= 60 ? 'watch' : fatigue.score <= 80 ? 'warning' : 'critical';
+
+  // Compute totals from history
+  let totalSpend = 0, totalClicks = 0, totalImpressions = 0, totalConsult = 0;
+  history.forEach(h => {
+    totalSpend += h.spend || 0;
+    totalClicks += h.clicks || 0;
+    totalImpressions += h.impressions || 0;
+    totalConsult += h.consultations || 0;
+  });
+  const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions * 100) : 0;
+  const avgCpp = totalConsult > 0 ? totalSpend / totalConsult : 0;
+
+  let html = '';
+  html += '<h2>' + esc(ad.ad_name || ad.id) + '</h2>';
+  html += '<div class="dp-platform"><span class="plat-badge ' + ad.platform + '">' + ad.platform + '</span>';
+  html += ' &middot; ' + esc(ad.campaign_name || '') + ' &middot; ' + esc(ad.status || '') + '</div>';
+
+  // Metrics grid
+  html += '<div class="dp-metrics">';
+  html += dpMetric('Spend (30d)', '$' + formatNum(totalSpend));
+  html += dpMetric('CTR', avgCtr.toFixed(2) + '%');
+  html += dpMetric('CPP', '$' + formatNum(avgCpp));
+  html += dpMetric('Clicks', formatNum(totalClicks));
+  html += dpMetric('Consult.', totalConsult);
+  html += dpMetric('Fatigue', '<span class="fatigue-pill ' + fatigueClass + '">' + fatigueScore + '</span>');
+  html += '</div>';
+
+  // Sparklines
+  if (history.length > 1) {
+    html += '<div class="dp-section"><h3>30-Day Trends</h3>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    html += '<div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">CTR</div>' + buildSparkline(history.map(h => h.ctr || 0), 'var(--blue)') + '</div>';
+    html += '<div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">Spend</div>' + buildSparkline(history.map(h => h.spend || 0), 'var(--gold)') + '</div>';
+    html += '<div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">CPP</div>' + buildSparkline(history.map(h => h.cpp || 0), 'var(--coral)') + '</div>';
+    html += '<div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">Impressions</div>' + buildSparkline(history.map(h => h.impressions || 0), 'var(--teal)') + '</div>';
+    html += '</div></div>';
+  }
+
+  // Fatigue breakdown
+  if (fatigue.signals && typeof fatigue.signals === 'object') {
+    html += '<div class="dp-section"><h3>Fatigue Breakdown</h3><div class="fatigue-breakdown">';
+    for (const [key, val] of Object.entries(fatigue.signals)) {
+      if (typeof val === 'object' && val !== null) {
+        const sigVal = val.signal != null ? val.signal : '--';
+        const weight = val.weight || '';
+        html += '<div class="fb-row"><span class="fb-label">' + esc(key) + (weight ? ' (' + weight + ')' : '') + '</span><span class="fb-val">' + sigVal + '</span></div>';
+      } else {
+        html += '<div class="fb-row"><span class="fb-label">' + esc(key) + '</span><span class="fb-val">' + esc(String(val)) + '</span></div>';
+      }
+    }
+    html += '</div></div>';
+  }
+
+  // Suggestions
+  html += '<div class="dp-section"><h3>Suggestions</h3>';
+  if (suggs.length === 0) {
+    html += '<div class="empty"><div class="empty-msg">No suggestions at this time.</div></div>';
+  } else {
+    suggs.forEach(s => {
+      html += '<div class="suggestion-item"><div class="s-type ' + esc(s.type) + '">' + esc(s.type) + '</div>' + esc(s.text) + '</div>';
+    });
+  }
+  html += '</div>';
+
+  // Campaign & creative info
+  html += '<div class="dp-section"><h3>Creative Info</h3>';
+  html += '<div class="fatigue-breakdown">';
+  html += '<div class="fb-row"><span class="fb-label">Format</span><span class="fb-val">' + esc(ad.format || '--') + '</span></div>';
+  html += '<div class="fb-row"><span class="fb-label">Campaign</span><span class="fb-val">' + esc(ad.campaign_name || '--') + '</span></div>';
+  html += '<div class="fb-row"><span class="fb-label">Ad Set</span><span class="fb-val">' + esc(ad.adset_name || '--') + '</span></div>';
+  if (ad.headline) html += '<div class="fb-row"><span class="fb-label">Headline</span><span class="fb-val">' + esc(ad.headline) + '</span></div>';
+  html += '</div></div>';
+
+  document.getElementById('dpContent').innerHTML = html;
+}
+
+function dpMetric(label, value) {
+  return '<div class="dp-m"><div class="dp-m-lbl">' + label + '</div><div class="dp-m-val">' + value + '</div></div>';
+}
+
+// --------------- Sparklines (SVG) ---------------
+function buildSparkline(data, color) {
+  if (!data || data.length < 2) return '<div style="height:48px"></div>';
+  const w = 180, h = 48, pad = 2;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data.map((v, i) => {
+    const x = pad + (i / (data.length - 1)) * (w - pad * 2);
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    return [x.toFixed(1), y.toFixed(1)];
+  });
+  const linePath = 'M' + points.map(p => p.join(',')).join('L');
+  const areaPath = linePath + 'L' + points[points.length - 1][0] + ',' + h + 'L' + points[0][0] + ',' + h + 'Z';
+
+  return '<svg class="sparkline" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">'
+    + '<path class="area" d="' + areaPath + '" fill="' + color + '"/>'
+    + '<path d="' + linePath + '" stroke="' + color + '"/>'
+    + '</svg>';
+}
+
+// --------------- Inspiration ---------------
+async function loadInspiration() {
+  try {
+    const res = await fetch(API + '/api/inspiration');
+    allInspiration = await res.json();
+    renderInspiration();
+  } catch (e) {
+    console.warn('Inspiration fetch failed:', e);
+  }
+}
+
+function setupInspFilters() {
+  document.querySelectorAll('#inspFilters .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#inspFilters .chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+      currentInspFilter = chip.dataset.isrc;
+      renderInspiration();
+    });
+  });
+}
+
+function renderInspiration() {
+  const grid = document.getElementById('inspGrid');
+  let items = allInspiration;
+
+  if (currentInspFilter !== 'all') {
+    items = items.filter(i => i.source === currentInspFilter);
+  }
+
+  if (items.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">&#9734;</div><div class="empty-msg">No inspiration items for this filter.</div></div>';
+    return;
+  }
+
+  grid.innerHTML = items.map(item => {
+    const thumbStyle = item.thumbnail_url ? 'background-image:url(' + esc(item.thumbnail_url) + ')' : '';
+    const sourceLabel = (item.source || '').replace(/_/g, ' ');
+    return '<div class="insp-card">'
+      + '<div class="insp-thumb" style="' + thumbStyle + '"><span class="insp-source">' + esc(sourceLabel) + '</span></div>'
+      + '<div class="insp-body">'
+      + '<div class="insp-brand">' + esc(item.brand_name || 'Unknown') + '</div>'
+      + '<div class="insp-desc">' + esc(item.description || '') + '</div>'
+      + '<div class="insp-tags">'
+      + (item.hook_type ? '<span class="hook-tag">' + esc(item.hook_type) + '</span>' : '')
+      + (item.format ? '<span class="hook-tag">' + esc(item.format) + '</span>' : '')
+      + (item.fetched_date ? '<span class="hook-tag">' + esc(item.fetched_date) + '</span>' : '')
+      + '</div></div></div>';
+  }).join('');
+}
+
+async function refreshInspiration() {
+  try {
+    await fetch(API + '/api/inspiration/refresh');
+    await loadInspiration();
+  } catch (e) {
+    console.warn('Inspiration refresh failed:', e);
+  }
+}
+
+// --------------- Sync ---------------
+async function doSync() {
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('syncing');
+  btn.textContent = 'Syncing...';
+  try {
+    await fetch(API + '/api/sync', { method: 'POST' });
+    await Promise.all([loadSummary(), loadAds()]);
+    btn.textContent = 'Done!';
+    setTimeout(() => { btn.textContent = 'Sync Now'; btn.classList.remove('syncing'); }, 2000);
+  } catch (e) {
+    btn.textContent = 'Error';
+    setTimeout(() => { btn.textContent = 'Sync Now'; btn.classList.remove('syncing'); }, 3000);
+  }
+}
+
+// --------------- Helpers ---------------
+function formatNum(n) {
+  if (n == null) return '0';
+  n = parseFloat(n);
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return n.toFixed(n % 1 === 0 ? 0 : 2);
+}
+
+function esc(str) {
+  if (str == null) return '';
+  const d = document.createElement('div');
+  d.textContent = String(str);
+  return d.innerHTML;
+}
 </script>
 </body>
 </html>
