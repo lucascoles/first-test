@@ -75,6 +75,30 @@ export const PRODUCTS = {
  * aspectRatio maps to Nano Banana 2's aspect_ratio param.
  * resolution maps to Nano Banana 2's resolution param (0.5K | 1K | 2K | 4K).
  */
+/**
+ * Competitor brands to monitor in the Facebook Ad Library
+ * and other inspiration sources.
+ */
+export const COMPETITORS = [
+  { name: 'Keeps',  searchTerms: ['Keeps hair loss', 'Keeps finasteride'] },
+  { name: 'Hims',   searchTerms: ['Hims hair', 'Hims finasteride'] },
+  { name: 'Manual', searchTerms: ['Manual hair loss treatment'] },
+  { name: 'Pilot',  searchTerms: ['Pilot hair loss', 'Pilot Australia hair'] },
+  { name: 'Lana',   searchTerms: ['Lana hair loss'] },
+];
+
+/**
+ * Search terms for the Facebook Ad Library (broader category terms).
+ */
+export const AD_LIBRARY_SEARCH_TERMS = [
+  'hair loss finasteride',
+  'hair loss treatment',
+  'topical finasteride',
+  'DHT blocker hair',
+  'minoxidil results',
+  ...COMPETITORS.flatMap(c => c.searchTerms),
+];
+
 export const AD_FORMATS = {
   instagramFeed:    { width: 1080, height: 1080, aspectRatio: "1:1",  resolution: "1K", label: "Instagram Feed (1:1)" },
   instagramStory:   { width: 1080, height: 1920, aspectRatio: "9:16", resolution: "1K", label: "Instagram Story (9:16)" },
