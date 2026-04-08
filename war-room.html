@@ -177,7 +177,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);
 </head>
 <body>
 
-<!-- PLACEHOLDER: HTML + JS sections to be added next -->
+<!-- ============ HEADER ============ -->
 <div class="hdr">
   <div class="hdr-logo"><span>XYON</span> COMMAND CENTRE</div>
   <div class="tabs">
@@ -187,12 +187,120 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   </div>
   <div class="hdr-r">
     <div class="live"><div class="live-dot"></div> LIVE</div>
-    <button class="sync-btn" onclick="doSync()">Sync Now</button>
+    <button class="sync-btn" id="syncBtn" onclick="doSync()">Sync Now</button>
   </div>
 </div>
-<div class="main"><div class="cnt" id="app">Loading...</div></div>
+
+<!-- ============ MAIN CONTENT ============ -->
+<div class="main"><div class="cnt">
+
+  <!-- ======= TAB: OVERVIEW ======= -->
+  <div class="tab-content active" id="tab-overview">
+
+    <!-- Section 1: KPI Bar -->
+    <div class="kpi-row" id="kpiRow">
+      <div class="kpi">
+        <div class="kpi-acc" style="background:var(--gold)"></div>
+        <div class="kpi-lbl">Total Spend (30d)</div>
+        <div class="kpi-val mono" id="kpi-spend">--</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-acc" style="background:var(--green)"></div>
+        <div class="kpi-lbl">Consultations</div>
+        <div class="kpi-val mono" id="kpi-consultations">--</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-acc" style="background:var(--blue)"></div>
+        <div class="kpi-lbl">Avg CTR</div>
+        <div class="kpi-val mono" id="kpi-ctr">--</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-acc" style="background:var(--teal)"></div>
+        <div class="kpi-lbl">Active Ads</div>
+        <div class="kpi-val mono" id="kpi-active">--</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-acc" style="background:var(--purple)"></div>
+        <div class="kpi-lbl">Avg Frequency (Meta)</div>
+        <div class="kpi-val mono" id="kpi-freq">--</div>
+      </div>
+    </div>
+
+    <!-- Section 2: Filters -->
+    <div class="sec-hdr">
+      <div class="sec-title">Ad Performance</div>
+      <div class="sec-sub" id="adCount"></div>
+    </div>
+    <div class="frow" id="filters">
+      <span class="chip on" data-filter="all">All</span>
+      <span class="chip" data-filter="meta">Meta</span>
+      <span class="chip" data-filter="tiktok">TikTok</span>
+      <span class="chip" data-filter="reddit">Reddit</span>
+      <span class="chip" data-filter="active">Active</span>
+      <span class="chip" data-filter="paused">Paused</span>
+    </div>
+
+    <!-- Section 3: Ad Performance Table -->
+    <table class="ad-table" id="adTable">
+      <thead>
+        <tr>
+          <th data-sort="platform">Platform <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="ad_name">Ad Name <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="status">Status <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="spend_7d">Spend (7d) <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="avg_ctr_7d">CTR <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="avg_frequency_7d">Frequency <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="avg_thumb_stop_7d">Thumb Stop <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="consultations_7d">Consult. <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="avg_cpp_7d">CPP <span class="sort-arrow">&#9650;</span></th>
+          <th data-sort="latest_fatigue">Fatigue <span class="sort-arrow">&#9650;</span></th>
+        </tr>
+      </thead>
+      <tbody id="adTableBody">
+        <tr><td colspan="10" class="empty"><div class="empty-icon">&#9678;</div><div class="empty-msg">No ad data yet. Click "Sync Now" or set up your .env credentials.</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ======= TAB: INSPIRATION ======= -->
+  <div class="tab-content" id="tab-inspiration">
+    <div class="sec-hdr">
+      <div class="sec-title">Inspiration Feed</div>
+      <button class="sync-btn" onclick="refreshInspiration()">Refresh Feed</button>
+    </div>
+    <div class="frow" id="inspFilters">
+      <span class="chip on" data-isrc="all">All</span>
+      <span class="chip" data-isrc="fb_library">Meta</span>
+      <span class="chip" data-isrc="tiktok_creative">TikTok</span>
+      <span class="chip" data-isrc="reddit_organic">Reddit</span>
+    </div>
+    <div class="insp-grid" id="inspGrid">
+      <div class="empty" style="grid-column:1/-1"><div class="empty-icon">&#9734;</div><div class="empty-msg">No inspiration yet. Click "Refresh Feed" to fetch competitor ads.</div></div>
+    </div>
+  </div>
+
+  <!-- ======= TAB: SWAP FRAMEWORK ======= -->
+  <div class="tab-content" id="tab-swap">
+    <div class="swap-placeholder">
+      <h3>Meta Ad Swap Framework</h3>
+      <p>This section is reserved for your custom swap framework rules.<br>
+      Once you provide the framework, the system will evaluate whether conditions<br>
+      are met for a creative swap and display "Swap Recommended" with reasoning.<br><br>
+      <strong style="color:var(--gold)">Pending your input to activate.</strong></p>
+    </div>
+  </div>
+
+</div></div>
+
+<!-- ============ DETAIL PANEL ============ -->
 <div class="dp-overlay" id="dpOverlay" onclick="closeDetail()"></div>
-<div class="dp" id="dp"></div>
+<div class="dp" id="dp">
+  <button class="dp-close" onclick="closeDetail()">&#10005;</button>
+  <div id="dpContent">
+    <!-- Populated by JS when an ad row is clicked -->
+  </div>
+</div>
+
 <script>
 /* JS will be added in next step */
 </script>
