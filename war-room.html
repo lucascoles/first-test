@@ -3,679 +3,460 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XYON Health — War Room</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>XYON — Ad Command Centre</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0d0d0f;--bg1:#141418;--bg2:#1a1a20;--bg3:#222228;
-  --border:#2a2a35;--text:#e8e8f0;--text2:#8888a0;--text3:#3a3a50;
-  --gold:#c9a96e;--green:#6fbd3a;--blue:#4a9eff;--coral:#e05c3a;
-  --purple:#9b6fd4;--amber:#e09020;--teal:#3ab8a0;
-  --hh:52px;--sw:240px;
-}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
-  font-family:'Space Grotesk',sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.025) 3px,rgba(0,0,0,.025) 4px)}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;mix-blend-mode:overlay;opacity:.04;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
-::-webkit-scrollbar{width:3px;height:3px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-
-/* HEADER */
-.hdr{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--bg1);
-  border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:0;z-index:100}
-.hdr-logo{font-size:15px;font-weight:700;letter-spacing:.08em;margin-right:28px;white-space:nowrap}
-.hdr-logo span{color:var(--gold)}
-.tabs{display:flex;gap:2px;flex:1}
-.tab{padding:6px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;
-  border-radius:6px;border:none;background:none;font-family:inherit;transition:all .15s}
-.tab:hover,.tab.on{color:var(--text);background:var(--bg3)}
-.hdr-r{display:flex;align-items:center;gap:14px;margin-left:16px}
-.live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);
-  font-family:'IBM Plex Mono',monospace;font-weight:500}
-.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(111,189,58,.4)}50%{box-shadow:0 0 0 4px rgba(111,189,58,0)}}
-.hdr-date{font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace}
-.sync-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;background:var(--bg3);
-  border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;
-  font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .2s}
-.sync-btn:hover{border-color:var(--gold);color:var(--gold)}
-.sync-btn.sy{color:var(--amber);border-color:var(--amber)}
-.sync-btn.sd{color:var(--green);border-color:var(--green)}
-
-/* LAYOUT */
-.main{display:flex;height:100vh;padding-top:var(--hh)}
-
-/* SIDEBAR */
-.sb{width:var(--sw);min-width:var(--sw);background:var(--bg1);border-right:1px solid var(--border);
-  overflow-y:auto;padding:14px 10px;display:flex;flex-direction:column;gap:18px}
-.sec-title{font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--text3);
-  text-transform:uppercase;padding:0 4px;margin-bottom:8px}
-.agent-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
-  padding:10px;cursor:pointer;transition:all .15s;margin-bottom:6px}
-.agent-card:hover{background:var(--bg3);border-color:var(--text3)}
-.agent-card.on{border-color:currentColor}
-.ac-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.ai{flex:1;min-width:0}
-.ai-code{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text3)}
-.ai-name{font-size:12px;font-weight:600}
-.ai-title{font-size:10px;color:var(--text2);margin-top:1px}
-.ac-status{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2);
-  font-family:'IBM Plex Mono',monospace}
-.dots{display:flex;gap:2px}
-.dot{width:3px;height:3px;border-radius:50%;animation:blink 1.4s infinite}
-.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,60%,100%{opacity:.2}30%{opacity:1}}
-.mrow{display:flex;justify-content:space-between;align-items:center;padding:6px 4px;
-  border-bottom:1px solid var(--border);font-size:11px}
-.mrow:last-child{border-bottom:none}
-.mlabel{color:var(--text2)}
-.mval{font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace}
-.bitem{margin-bottom:10px}
-.bitem-top{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px}
-.blabel{color:var(--text2)}
-.bpct{font-family:'IBM Plex Mono',monospace;font-weight:600}
-.btrack{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.bfill{height:100%;border-radius:2px;width:0;transition:width 1.8s cubic-bezier(.16,1,.3,1)}
-.acct{display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--border);font-size:11px}
-.acct:last-child{border-bottom:none}
-.acct-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.acct-name{flex:1;color:var(--text2)}
-.acct-st{color:var(--text3);font-size:10px;font-family:'IBM Plex Mono',monospace}
-
-/* CONTENT */
-.cnt{flex:1;overflow-y:auto;padding:18px 18px 24px;min-width:0}
-
-/* KPI */
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
-.kpi{background:var(--bg1);border:1px solid var(--border);border-radius:10px;
-  padding:13px;position:relative;overflow:hidden;transition:border-color .15s;cursor:default}
-.kpi:hover{border-color:var(--text3)}
-.kpi-acc{position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0}
-.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--text2);margin-bottom:7px}
-.kpi-val{font-size:21px;font-weight:700;font-family:'IBM Plex Mono',monospace;
-  margin-bottom:8px;letter-spacing:-.02em}
-.kpi-bot{display:flex;align-items:flex-end;justify-content:space-between}
-.kchg{font-size:10px;font-family:'IBM Plex Mono',monospace;font-weight:600;
-  padding:2px 6px;border-radius:4px}
-.kchg.up{color:var(--green);background:rgba(111,189,58,.12)}
-.kchg.dn{color:var(--coral);background:rgba(224,92,58,.12)}
-
-/* FILTERS */
-.frow{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.flbl{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-right:4px}
-.chip{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);
-  color:var(--text2);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
-.chip:hover{border-color:var(--text3);color:var(--text)}
-.chip.on{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,.08)}
-
-/* AD GRID */
-.ad-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:14px}
-.adc{background:var(--bg1);border:1px solid var(--border);border-radius:10px;
-  overflow:hidden;cursor:pointer;transition:all .18s;position:relative}
-.adc:hover{border-color:var(--text3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.adc.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 8px 24px rgba(201,169,110,.15)}
-.adc.hide{display:none}
-.ad-img{position:relative;height:128px;overflow:hidden}
-.ad-img-bg{width:100%;height:100%;background-size:cover;background-position:center}
-.badge-tl{position:absolute;top:6px;left:6px;font-family:'IBM Plex Mono',monospace;
-  font-size:9px;font-weight:600;color:rgba(255,255,255,.9);background:rgba(0,0,0,.6);
-  padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px)}
-.status-b{position:absolute;top:6px;right:6px;font-size:9px;font-weight:600;
-  padding:2px 7px;border-radius:10px}
-.status-b.active{color:var(--green);background:rgba(111,189,58,.2)}
-.status-b.paused{color:var(--amber);background:rgba(224,144,32,.2)}
-.status-b.learning{color:var(--blue);background:rgba(74,158,255,.2)}
-.agt-ov{position:absolute;bottom:6px;left:6px;display:flex;align-items:center;gap:5px;
-  background:rgba(0,0,0,.72);padding:3px 6px 3px 3px;border-radius:6px;backdrop-filter:blur(4px)}
-.agt-nm{font-size:9px;font-weight:600}
-.agt-rl{font-size:8px;color:rgba(255,255,255,.45)}
-.ad-body{padding:10px}
-.ad-name{font-size:12px;font-weight:600;margin-bottom:2px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.ad-hl{font-size:10px;color:var(--text2);margin-bottom:7px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
-.ad-tags{display:flex;gap:5px;margin-bottom:7px}
-.ad-tag{font-size:9px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);
-  padding:1px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace}
-.ad-met{display:grid;grid-template-columns:1fr 1fr 1fr;margin-bottom:7px;
-  border:1px solid var(--border);border-radius:6px;overflow:hidden}
-.am{padding:5px 8px;text-align:center;border-right:1px solid var(--border)}
-.am:last-child{border-right:none}
-.am-lbl{font-size:9px;color:var(--text3);margin-bottom:2px}
-.am-val{font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace}
-.ad-act{display:flex;align-items:center;gap:5px;padding:4px 6px;
-  background:var(--bg2);border-radius:6px;margin-bottom:6px}
-.act-icon{font-size:11px}
-.act-txt{flex:1;font-size:9px;color:var(--text2);font-family:'IBM Plex Mono',monospace;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ad-bbar{height:2px;background:var(--bg3);border-radius:1px;overflow:hidden}
-.ad-bfill{height:100%;border-radius:1px;width:0;transition:width 2s cubic-bezier(.16,1,.3,1)}
-
-/* BOTTOM ROW */
-.brow{display:grid;grid-template-columns:1fr 340px;gap:11px}
-.chart-card,.term-card{background:var(--bg1);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.card-hdr{display:flex;align-items:center;justify-content:space-between;
-  padding:9px 13px;border-bottom:1px solid var(--border)}
-.card-ttl{font-size:11px;font-weight:600}
-.legend{display:flex;gap:12px}
-.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2)}
-.leg-line{width:10px;height:2px;border-radius:1px}
-.chart-body{padding:12px}
-
-/* TERMINAL */
-.term-hdr{display:flex;align-items:center;gap:6px;padding:7px 12px;border-bottom:1px solid var(--border)}
-.tl{display:flex;gap:4px}
-.tlb{width:8px;height:8px;border-radius:50%}
-.term-ttl{font-size:10px;color:var(--text2);font-family:'IBM Plex Mono',monospace;flex:1;text-align:center}
-.term-body{height:144px;overflow-y:auto;padding:8px 12px;font-family:'IBM Plex Mono',monospace;
-  font-size:9px;display:flex;flex-direction:column;gap:2px}
-.log-ln{display:flex;gap:6px;animation:fadeUp .3s ease;opacity:.85}
-.log-ln:last-child{opacity:1}
-@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:.85;transform:translateY(0)}}
-.lt{color:var(--text3);flex-shrink:0}
-.la{font-weight:600;flex-shrink:0}
-.lm{color:var(--text2)}
-
-/* DETAIL PANEL */
-.dp{position:fixed;top:var(--hh);right:0;width:380px;height:calc(100vh - var(--hh));
-  background:var(--bg1);border-left:1px solid var(--border);
-  transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);
-  z-index:90;overflow:hidden;display:flex;flex-direction:column}
-.dp.open{transform:translateX(0)}
-.dp-inner{overflow-y:auto;flex:1}
-.dp-close{position:absolute;top:10px;right:10px;width:28px;height:28px;
-  background:rgba(0,0,0,.65);border:none;border-radius:50%;color:#fff;
-  font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  backdrop-filter:blur(4px);z-index:5;transition:background .15s}
-.dp-close:hover{background:rgba(224,92,58,.6)}
-.dp-img{height:176px;position:relative;flex-shrink:0}
-.dp-img-bg{width:100%;height:100%;background-size:cover;background-position:center}
-.dp-img-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,15,.9) 0%,transparent 55%)}
-.dp-img-bot{position:absolute;bottom:12px;left:14px;right:14px}
-.dp-adname{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
-.dp-body{padding:16px}
-.dp-sec{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--text3);margin-bottom:10px}
-.dp-mets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px}
-.dp-m{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
-.dp-ml{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.dp-mv{font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace}
-.analysis{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
-  padding:10px;margin-bottom:16px;font-family:'IBM Plex Mono',monospace;font-size:9px}
-.aln{display:flex;gap:6px;padding:3px 0;color:var(--text2)}
-.aln+.aln{border-top:1px solid var(--border)}
-.rec{display:flex;gap:10px;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid transparent}
-.rec.g{background:rgba(111,189,58,.06);border-color:rgba(111,189,58,.2)}
-.rec.au{background:rgba(201,169,110,.06);border-color:rgba(201,169,110,.2)}
-.rec.b{background:rgba(74,158,255,.06);border-color:rgba(74,158,255,.2)}
-.rec-ico{font-size:16px;flex-shrink:0}
-.rec-txt{font-size:11px;line-height:1.5}
-.rec-txt strong{display:block;font-weight:700;margin-bottom:2px}
-.rec-txt span{color:var(--text2)}
-.bk{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:89;opacity:0;
-  pointer-events:none;transition:opacity .3s}
-.bk.open{opacity:1;pointer-events:all}
+  :root {
+    --bg: #0e0e10;
+    --surface: #18181b;
+    --border: #27272a;
+    --text: #fafafa;
+    --muted: #71717a;
+    --accent: #c9a96e;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --red: #ef4444;
+    --blue: #3b82f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; font-size: 14px; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 16px; font-weight: 700; letter-spacing: .05em; color: var(--accent); margin-right: 20px; }
+  .nav { display: flex; gap: 4px; }
+  .nav-btn { background: none; border: none; color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .nav-btn.active, .nav-btn:hover { background: var(--border); color: var(--text); }
+  .header-left { display: flex; align-items: center; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .sync-btn { background: var(--accent); color: #000; border: none; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .sync-btn:disabled { opacity: .5; cursor: default; }
+  .live { font-size: 12px; color: var(--muted); }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 5px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+  .main { padding: 24px; max-width: 1600px; margin: 0 auto; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr)); gap: 12px; margin-bottom: 24px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+  .kpi-value { font-size: 28px; font-weight: 700; line-height: 1; }
+  .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .sec-title { font-size: 15px; font-weight: 600; }
+  .filters { display: flex; gap: 4px; }
+  .fbtn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .fbtn.active { border-color: var(--accent); color: var(--accent); }
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #1c1c1f; padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; white-space: nowrap; }
+  th:hover { color: var(--text); }
+  td { padding: 11px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
+  .ad-row { cursor: pointer; }
+  .ad-row:hover { background: rgba(255,255,255,.03); }
+  .ad-row.sel { background: rgba(201,169,110,.07); }
+  .ad-name { font-weight: 500; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sub { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 5px; }
+  .badge.meta { background: rgba(59,130,246,.15); color: #60a5fa; }
+  .badge.tiktok { background: rgba(168,85,247,.15); color: #c084fc; }
+  .badge.reddit { background: rgba(249,115,22,.15); color: #fb923c; }
+  .fatigue { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+  .fatigue.healthy { background: rgba(34,197,94,.15); color: var(--green); }
+  .fatigue.watch { background: rgba(234,179,8,.15); color: var(--yellow); }
+  .fatigue.warning { background: rgba(249,115,22,.15); color: var(--orange); }
+  .fatigue.critical { background: rgba(239,68,68,.15); color: var(--red); }
+  .num { font-variant-numeric: tabular-nums; }
+  .empty { text-align: center; padding: 48px 24px; color: var(--muted); }
+  .empty strong { display: block; color: var(--text); margin-bottom: 8px; font-size: 15px; }
+  .empty code { background: var(--border); padding: 2px 6px; border-radius: 4px; color: var(--accent); font-family: monospace; }
+  .loading { text-align: center; padding: 36px; color: var(--muted); }
+  /* Detail panel */
+  .detail { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 24px; display: none; }
+  .detail.open { display: block; }
+  .detail-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .detail-name { font-size: 17px; font-weight: 700; }
+  .detail-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .xbtn { background: none; border: 1px solid var(--border); color: var(--muted); width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--bg); border-radius: 8px; padding: 12px; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+  .stat-value { font-size: 20px; font-weight: 700; }
+  .spark-wrap { margin-bottom: 20px; }
+  .spark-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .sugg-list { display: flex; flex-direction: column; gap: 8px; }
+  .sugg { background: var(--bg); border-radius: 8px; padding: 11px 13px; font-size: 13px; line-height: 1.5; border-left: 3px solid var(--border); }
+  .sugg.swap,.sugg.pause { border-color: var(--red); }
+  .sugg.fatigue_warning { border-color: var(--orange); }
+  .sugg.fatigue_watch { border-color: var(--yellow); }
+  .sugg.scale { border-color: var(--green); }
+  .sugg.benchmark_low { border-color: var(--blue); }
+  .signals { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 18px; }
+  .chip { font-size: 11px; background: var(--bg); border: 1px solid var(--border); padding: 3px 9px; border-radius: 20px; color: var(--muted); }
+  /* Inspiration */
+  .insp-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(250px,1fr)); gap: 14px; margin-bottom: 24px; }
+  .insp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .insp-card:hover { border-color: var(--accent); }
+  .insp-thumb { width: 100%; height: 140px; background: var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; overflow: hidden; }
+  .insp-thumb img { width: 100%; height: 140px; object-fit: cover; }
+  .insp-body { padding: 12px; }
+  .insp-src { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 3px; }
+  .insp-brand { font-weight: 600; font-size: 13px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .insp-desc { font-size: 12px; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px; }
+  .hook { display: inline-block; font-size: 11px; background: rgba(201,169,110,.12); color: var(--accent); padding: 2px 8px; border-radius: 5px; }
+  .insp-link { font-size: 11px; color: var(--blue); text-decoration: none; float: right; }
+  /* Campaigns */
+  select.msel { background: var(--border); color: var(--text); border: none; padding: 4px 8px; border-radius: 5px; font-size: 12px; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="hdr">
-  <div class="hdr-logo">XYON <span>WAR ROOM</span></div>
-  <nav class="tabs">
-    <button class="tab on" onclick="switchTab(this)">Overview</button>
-    <button class="tab" onclick="switchTab(this)">Campaigns</button>
-    <button class="tab" onclick="switchTab(this)">Creatives</button>
-    <button class="tab" onclick="switchTab(this)">Agents</button>
-  </nav>
-  <div class="hdr-r">
-    <div class="live"><div class="live-dot"></div>LIVE</div>
-    <div class="hdr-date" id="hdr-date"></div>
-    <button class="sync-btn" id="sync-btn" onclick="doSync()">⟳ Sync</button>
+<header class="header">
+  <div class="header-left">
+    <div class="logo">XYON</div>
+    <nav class="nav">
+      <button class="nav-btn active" onclick="showTab('perf')">Performance</button>
+      <button class="nav-btn" onclick="showTab('insp')">Inspiration</button>
+      <button class="nav-btn" onclick="showTab('camp')">Campaigns</button>
+    </nav>
+  </div>
+  <div class="header-right">
+    <span class="live" id="live-status"><span class="dot"></span>Live</span>
+    <button class="sync-btn" id="sync-btn" onclick="doSync()">Sync Now</button>
   </div>
 </header>
 
-<!-- MAIN -->
-<div class="main">
+<main class="main">
 
-  <!-- SIDEBAR -->
-  <aside class="sb">
-    <div>
-      <div class="sec-title">Agents</div>
-      <div id="agent-cards"></div>
-    </div>
-    <div>
-      <div class="sec-title">Account Health</div>
-      <div class="mrow"><span class="mlabel">Policy Status</span><span class="mval" style="color:var(--green)">✓ Good</span></div>
-      <div class="mrow"><span class="mlabel">Delivery</span><span class="mval" style="color:var(--green)">Active</span></div>
-      <div class="mrow"><span class="mlabel">Review Queue</span><span class="mval" style="color:var(--amber)">3 pending</span></div>
-      <div class="mrow"><span class="mlabel">Budget Used</span><span class="mval">68%</span></div>
-      <div class="mrow"><span class="mlabel">Daily Budget</span><span class="mval">$1,200</span></div>
-    </div>
-    <div>
-      <div class="sec-title">Budget Allocation</div>
-      <div id="budget-bars"></div>
-    </div>
-    <div>
-      <div class="sec-title">Ad Accounts</div>
-      <div class="acct"><div class="acct-dot" style="background:var(--green)"></div><div class="acct-name">XYON Health — Main</div><div class="acct-st">Active</div></div>
-      <div class="acct"><div class="acct-dot" style="background:var(--green)"></div><div class="acct-name">XYON Health — Test</div><div class="acct-st">Active</div></div>
-      <div class="acct"><div class="acct-dot" style="background:var(--amber)"></div><div class="acct-name">XYON — Retarget</div><div class="acct-st">Paused</div></div>
-    </div>
-  </aside>
+<!-- PERFORMANCE -->
+<div id="tab-perf">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Spend (30d)</div><div class="kpi-value" id="k-spend">—</div></div>
+    <div class="kpi"><div class="kpi-label">Consultations (30d)</div><div class="kpi-value" id="k-cons">—</div></div>
+    <div class="kpi"><div class="kpi-label">Avg CTR</div><div class="kpi-value" id="k-ctr">—</div></div>
+    <div class="kpi"><div class="kpi-label">Active Ads</div><div class="kpi-value" id="k-ads">—</div></div>
+    <div class="kpi"><div class="kpi-label">Avg Frequency</div><div class="kpi-value" id="k-freq">—</div></div>
+    <div class="kpi"><div class="kpi-label">Avg Thumb Stop</div><div class="kpi-value" id="k-thumb">—</div></div>
+  </div>
 
-  <!-- CONTENT -->
-  <div class="cnt">
-    <div class="kpi-row" id="kpi-row"></div>
-    <div class="frow">
-      <span class="flbl">FILTER</span>
-      <button class="chip on" data-f="all" onclick="filterAds(this)">All (11)</button>
-      <button class="chip" data-f="active" onclick="filterAds(this)">Active (7)</button>
-      <button class="chip" data-f="paused" onclick="filterAds(this)">Paused (2)</button>
-      <button class="chip" data-f="learning" onclick="filterAds(this)">Learning (2)</button>
-      <button class="chip" data-f="image" onclick="filterAds(this)">Image</button>
-      <button class="chip" data-f="video" onclick="filterAds(this)">Video</button>
-    </div>
-    <div class="ad-grid" id="ad-grid"></div>
-    <div class="brow">
-      <div class="chart-card">
-        <div class="card-hdr">
-          <div class="card-ttl">7-Day Performance</div>
-          <div class="legend">
-            <div class="leg"><div class="leg-line" style="background:var(--gold)"></div>Spend</div>
-            <div class="leg"><div class="leg-line" style="background:var(--green)"></div>Revenue</div>
-          </div>
-        </div>
-        <div class="chart-body">
-          <svg id="perf-chart" viewBox="0 0 560 120" style="width:100%;height:120px;overflow:visible"></svg>
-        </div>
+  <!-- Detail panel -->
+  <div class="detail" id="detail">
+    <div class="detail-top">
+      <div>
+        <div class="detail-name" id="d-name">—</div>
+        <div class="detail-sub" id="d-sub">—</div>
       </div>
-      <div class="term-card">
-        <div class="term-hdr">
-          <div class="tl">
-            <div class="tlb" style="background:#e05c3a"></div>
-            <div class="tlb" style="background:#e09020"></div>
-            <div class="tlb" style="background:#6fbd3a"></div>
-          </div>
-          <div class="term-ttl">agent-log — live</div>
-        </div>
-        <div class="term-body" id="terminal"></div>
-      </div>
+      <button class="xbtn" onclick="closeDetail()">✕</button>
     </div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-label">Spend</div><div class="stat-value" id="d-spend">—</div></div>
+      <div class="stat"><div class="stat-label">Consultations</div><div class="stat-value" id="d-cons">—</div></div>
+      <div class="stat"><div class="stat-label">Cost/Consult</div><div class="stat-value" id="d-cpp">—</div></div>
+      <div class="stat"><div class="stat-label">CTR</div><div class="stat-value" id="d-ctr">—</div></div>
+      <div class="stat"><div class="stat-label">Frequency</div><div class="stat-value" id="d-freq">—</div></div>
+      <div class="stat"><div class="stat-label">Thumb Stop</div><div class="stat-value" id="d-thumb">—</div></div>
+    </div>
+    <div class="spark-wrap">
+      <div class="spark-label">CTR — last 30 days</div>
+      <canvas id="spark" style="width:100%;height:60px"></canvas>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Fatigue Signals</div>
+    <div class="signals" id="d-signals"></div>
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Suggestions</div>
+    <div class="sugg-list" id="d-sugg"><div class="loading">…</div></div>
+  </div>
+
+  <!-- Table -->
+  <div class="sec-header">
+    <div class="sec-title">Active Ads</div>
+    <div class="filters" id="pf">
+      <button class="fbtn active" onclick="pfilt(this,'')">All</button>
+      <button class="fbtn" onclick="pfilt(this,'meta')">Meta</button>
+      <button class="fbtn" onclick="pfilt(this,'tiktok')">TikTok</button>
+      <button class="fbtn" onclick="pfilt(this,'reddit')">Reddit</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="srt('ad_name')">Ad Name</th>
+          <th onclick="srt('platform')">Platform</th>
+          <th onclick="srt('spend')">Spend</th>
+          <th onclick="srt('ctr')">CTR</th>
+          <th onclick="srt('frequency')">Freq</th>
+          <th onclick="srt('thumb_stop_rate')">Thumb Stop</th>
+          <th onclick="srt('consultations')">Consults</th>
+          <th onclick="srt('cpp')">CPP</th>
+          <th onclick="srt('fatigue_score')">Fatigue ↓</th>
+        </tr>
+      </thead>
+      <tbody id="ads-body"><tr><td colspan="9" class="loading">Loading…</td></tr></tbody>
+    </table>
   </div>
 </div>
 
-<!-- Backdrop + Detail Panel -->
-<div class="bk" id="bk" onclick="closeDetail()"></div>
-<div class="dp" id="dp">
-  <button class="dp-close" onclick="closeDetail()">✕</button>
-  <div class="dp-inner" id="dp-inner"></div>
+<!-- INSPIRATION -->
+<div id="tab-insp" style="display:none">
+  <div class="sec-header">
+    <div class="sec-title">Competitor & Trending Inspiration</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="filters" id="if">
+        <button class="fbtn active" onclick="ifilt(this,'')">All</button>
+        <button class="fbtn" onclick="ifilt(this,'fb_library')">Meta Library</button>
+        <button class="fbtn" onclick="ifilt(this,'tiktok_creative')">TikTok Trends</button>
+        <button class="fbtn" onclick="ifilt(this,'reddit_organic')">Reddit</button>
+      </div>
+      <button class="sync-btn" onclick="refreshInsp()" style="font-size:12px;padding:5px 12px">Refresh</button>
+    </div>
+  </div>
+  <div class="insp-grid" id="insp-grid"><div class="loading">Loading…</div></div>
 </div>
 
+<!-- CAMPAIGNS -->
+<div id="tab-camp" style="display:none">
+  <div class="sec-header">
+    <div class="sec-title">Campaign Configuration</div>
+    <span style="font-size:12px;color:var(--muted)">Set primary conversion metric per campaign</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Campaign</th><th>Platform</th><th>Primary Metric</th><th>Active Ads</th></tr></thead>
+      <tbody id="camp-body"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody>
+    </table>
+  </div>
+  <div class="table-wrap" style="padding:22px;margin-top:12px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:10px">Meta Ad Swap Framework</div>
+    <p style="color:var(--muted);font-size:13px;line-height:1.7">
+      This section is reserved for your Meta ad swap rules. Once you share your framework, the logic will be wired into
+      <code style="background:var(--border);padding:2px 6px;border-radius:4px;color:var(--accent)">analysis/meta-swap.js</code>
+      and swap recommendations will appear automatically in the Suggestions panel for each Meta ad.
+    </p>
+  </div>
+</div>
+
+</main>
+
 <script>
-const AGENTS=[
-  {code:'A-01',name:'SCRAPER',title:'Website Scraper',color:'#e05c3a',s2:'Crawling XYONHealth.com',
-   sp:[[0,1,0,0,0,1,0],[1,1,0,1,0,1,1],[0,1,0,1,0,1,0],[0,1,1,1,1,1,0],[0,0,1,0,1,0,0],[0,1,0,0,0,1,0],[1,0,0,0,0,0,1]]},
-  {code:'A-02',name:'GENERATOR',title:'Fal.ai Image Gen',color:'#9b6fd4',s2:'Running Nano Banana 2',
-   sp:[[0,0,0,1,0,0,0],[0,1,0,1,0,1,0],[0,0,1,1,1,0,0],[1,1,1,1,1,1,1],[0,0,1,1,1,0,0],[0,1,0,1,0,1,0],[0,0,0,1,0,0,0]]},
-  {code:'A-03',name:'PUBLISHER',title:'Meta Publisher',color:'#e09020',s2:'Uploading 3 creatives',
-   sp:[[0,0,0,1,0,0,0],[0,0,1,1,1,0,0],[0,1,1,1,1,1,0],[0,0,0,1,0,0,0],[0,0,0,1,0,0,0],[1,1,1,1,1,1,1],[1,1,1,1,1,1,1]]},
-  {code:'A-04',name:'TRACKER',title:'Performance Tracker',color:'#6fbd3a',s2:'Learning loop: 94%',
-   sp:[[0,0,0,0,0,0,1],[0,0,0,0,0,1,1],[0,0,0,1,0,1,1],[0,0,0,1,0,1,1],[0,1,0,1,0,1,1],[0,1,0,1,0,1,1],[1,1,1,1,1,1,1]]},
-];
+let allAds = [], allInsp = [], platFilter = '', inspFilter = '', sortKey = 'fatigue_score', sortDir = 'desc', selId = null;
 
-const ADS=[
-  {id:'AD-001',name:'Combo Gel — IG Feed Hero',hl:'One gel. Two proven actives.',obj:'Conversions',fmt:'Image · 1:1',st:'active',roas:5.2,ctr:3.8,spend:3240,conv:142,impr:89200,ai:1,g:'linear-gradient(145deg,#1a0a2e,#2d1060,#9b6fd4)'},
-  {id:'AD-002',name:'Finasteride Gel — Story',hl:'Doctor-formulated. Clinically targeted.',obj:'Traffic',fmt:'Image · 9:16',st:'active',roas:4.8,ctr:2.9,spend:2180,conv:98,impr:67400,ai:2,g:'linear-gradient(145deg,#0a1a2e,#0a3060,#4a9eff)'},
-  {id:'AD-003',name:'DHT Shampoo — FB Feed',hl:'Your shampoo should work harder.',obj:'Reach',fmt:'Image · 16:9',st:'active',roas:3.8,ctr:1.6,spend:1890,conv:67,impr:112000,ai:0,g:'linear-gradient(145deg,#1a1200,#3a2800,#c9a96e)'},
-  {id:'AD-004',name:'Dutasteride — IG Feed',hl:'Stronger DHT blockade.',obj:'Conversions',fmt:'Image · 1:1',st:'learning',roas:2.9,ctr:2.1,spend:980,conv:28,impr:41000,ai:3,g:'linear-gradient(145deg,#0a1a0a,#0a3a0a,#6fbd3a)'},
-  {id:'AD-005',name:'Minoxidil Tablets — FB',hl:'Stimulate growth from within.',obj:'Conversions',fmt:'Image · 16:9',st:'active',roas:4.1,ctr:2.4,spend:2640,conv:103,impr:73600,ai:1,g:'linear-gradient(145deg,#1a0a2e,#3a1060,#9b6fd4)'},
-  {id:'AD-006',name:'Hair Serum Bundle — IG',hl:'The complete hair system.',obj:'Catalog Sales',fmt:'Carousel · 1:1',st:'paused',roas:3.2,ctr:1.8,spend:1340,conv:41,impr:55300,ai:2,g:'linear-gradient(145deg,#1a0a0a,#3a0a0a,#e05c3a)'},
-  {id:'AD-007',name:'Combo Gel — Reels',hl:'Real results. Real fast.',obj:'Video Views',fmt:'Video · 9:16',st:'active',roas:5.6,ctr:4.2,spend:4120,conv:219,impr:98700,ai:0,g:'linear-gradient(145deg,#0e0e1a,#1a1a3a,#6a6ad4)'},
-  {id:'AD-008',name:'DHT Conditioner — IG',hl:'Strengthen while you wash.',obj:'Traffic',fmt:'Image · 1:1',st:'active',roas:4.3,ctr:2.7,spend:1760,conv:72,impr:59200,ai:3,g:'linear-gradient(145deg,#001a12,#003a20,#3ab8a0)'},
-  {id:'AD-009',name:'Oral Finasteride — FB',hl:'Simple. Once daily. Effective.',obj:'Conversions',fmt:'Image · 16:9',st:'paused',roas:2.4,ctr:1.2,spend:890,conv:19,impr:38900,ai:1,g:'linear-gradient(145deg,#1a100a,#3a2010,#c9a96e)'},
-  {id:'AD-010',name:'Combo Gel UGC — IG',hl:'See what real customers say.',obj:'Conversions',fmt:'Video · 1:1',st:'learning',roas:3.1,ctr:3.1,spend:1560,conv:45,impr:46800,ai:0,g:'linear-gradient(145deg,#10101a,#20203a,#4a4a9e)'},
-  {id:'AD-011',name:'DHT Shampoo Bundle',hl:'Block DHT. Every wash.',obj:'Catalog Sales',fmt:'Carousel · 1:1',st:'active',roas:4.7,ctr:2.2,spend:2230,conv:113,impr:71400,ai:3,g:'linear-gradient(145deg,#001a10,#003a20,#6fbd3a)'},
-];
-
-const KPIS=[
-  {lbl:'Total Spend', val:24830,pre:'$',suf:'', spark:[3200,3400,3100,3600,3800,3500,3840],chg:'+12.4%',up:true, c:'#c9a96e'},
-  {lbl:'Revenue',     val:118450,pre:'$',suf:'',spark:[15200,16800,15400,17600,18200,17100,18150],chg:'+18.2%',up:true, c:'#6fbd3a'},
-  {lbl:'Impressions', val:2.41, pre:'', suf:'M',spark:[1.8,2.0,1.9,2.2,2.5,2.3,2.4],chg:'+8.7%', up:true, c:'#4a9eff'},
-  {lbl:'Conversions', val:847,  pre:'', suf:'', spark:[102,118,98,125,134,115,135],chg:'+22.1%',up:true, c:'#9b6fd4'},
-  {lbl:'Active Ads',  val:7,    pre:'', suf:'', spark:[6,7,7,7,8,7,7],chg:'0%',   up:true, c:'#e09020'},
-];
-
-const BUDGETS=[
-  {lbl:'Topical Combo',   pct:62,c:'#9b6fd4'},
-  {lbl:'Finasteride Gel', pct:41,c:'#4a9eff'},
-  {lbl:'DHT Shampoo',     pct:28,c:'#c9a96e'},
-  {lbl:'Video Creatives', pct:55,c:'#6fbd3a'},
-];
-
-const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const SPEND_D=[3200,3400,3100,3600,3800,3500,3840];
-const REV_D=[15200,16800,15400,17600,18200,17100,18150];
-
-const ACTIONS=[
-  ['🌐 Crawling product pages','📦 Indexing new assets','🔍 Detecting price changes','📸 Extracting brand images'],
-  ['🎨 Generating variation 51/100','✨ Applying brand-lock prompts','🧠 Running thinking_level:high','🖼 Rendering IG Story format'],
-  ['📤 Uploading to Meta Ads','📋 Checking policy compliance','💰 Adjusting daily budgets','🔄 Syncing creative library'],
-  ['📊 Analyzing ROAS trends','🔁 Running learning loop','⚡ Detecting CTR anomalies','📈 Compiling performance report'],
-];
-
-const LOGS=[
-  [0,'Crawling /products/topical-finasteride — 24 assets found'],
-  [1,'Variation 047/100 → seed:1046, ROAS estimate: 5.1'],
-  [2,'AD-007 uploaded → Meta review queue (ETA 2h)'],
-  [3,'ROAS alert: AD-001 +0.3 → 5.2 (7-day rolling avg)'],
-  [0,'Asset refresh: combo-gel-v3.jpg detected and indexed'],
-  [1,'Nano Banana 2 → thinking_level:high → 8.2s render'],
-  [2,'AD-011 activated → daily budget $120 allocated'],
-  [3,'AD-009 learning complete — recommend reallocation'],
-  [0,'Full scrape done: 11 products, 46 images cached'],
-  [1,'Variation 083/100 → seed:1082, format: 9:16 Story'],
-  [2,'AD-004 learning: 28/50 conversions accumulated'],
-  [3,'CTR spike: AD-007 +1.1pp — flagged for budget scale'],
-  [0,'Price change detected: Finasteride $99→$89 promo'],
-  [1,'Batch complete: 100 variations, avg 7.8s/image'],
-  [2,'Budget shift: +$40/day to AD-001, AD-007'],
-  [3,'Weekly report: 847 conv · $4.76 avg ROAS · $24,830 spend'],
-];
-</script>
-<script>
-// ── Utilities ──────────────────────────────────────────
-function rc(r){return r>=4.5?'#6fbd3a':r>=3.5?'#3ab8a0':r>=2.5?'#c9a96e':'#e05c3a'}
-function fm(n){return n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+n.toLocaleString()}
-
-function sparkPath(data,w,h){
-  const mn=Math.min(...data),mx=Math.max(...data),rng=mx-mn||1;
-  return data.map((v,i)=>`${i?'L':'M'}${((i/(data.length-1))*w).toFixed(1)},${(h-((v-mn)/rng)*(h-2)-1).toFixed(1)}`).join(' ');
+async function api(path, method='GET', body) {
+  const opts = { method };
+  if (body) { opts.headers = {'Content-Type':'application/json'}; opts.body = JSON.stringify(body); }
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
 }
 
-function sprite(grid,color,sz){
-  const cs=sz/7;
-  const cells=grid.flatMap((row,ry)=>row.map((on,cx)=>on?`<rect x="${(cx*cs).toFixed(1)}" y="${(ry*cs).toFixed(1)}" width="${cs.toFixed(1)}" height="${cs.toFixed(1)}" fill="${color}"/>`:'').filter(Boolean)).join('');
-  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" style="image-rendering:pixelated;display:block">${cells}</svg>`;
+async function boot() {
+  loadSummary(); loadAds(); loadInsp(); loadCamps();
+  setInterval(loadSummary, 60000);
 }
 
-function animCount(el,target,dur,fmt){
-  const t0=performance.now();
-  (function step(now){
-    const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);
-    el.textContent=fmt(target*e);
-    if(p<1)requestAnimationFrame(step);
-  })(t0);
+async function loadSummary() {
+  try {
+    const d = await api('/api/summary');
+    const t = d.totals;
+    set('k-spend',  fm(t.total_spend));
+    set('k-cons',   fn(t.total_consultations));
+    set('k-ctr',    fp(t.avg_ctr));
+    set('k-ads',    fn(t.active_ads));
+    set('k-freq',   t.avg_frequency ? t.avg_frequency.toFixed(1)+'x' : '—');
+    set('k-thumb',  t.avg_thumb_stop ? fp(t.avg_thumb_stop*100) : '—');
+    set('live-status', '<span class="dot"></span>Synced');
+  } catch { set('live-status', 'Run: node server.js'); }
 }
 
-// ── Agents ─────────────────────────────────────────────
-function renderAgents(){
-  document.getElementById('agent-cards').innerHTML=AGENTS.map((a,i)=>`
-    <div class="agent-card" onclick="selAgent(this)" style="color:${a.color}">
-      <div class="ac-top">
-        ${sprite(a.sp,a.color,28)}
-        <div class="ai">
-          <div class="ai-code">${a.code}</div>
-          <div class="ai-name" style="color:${a.color}">${a.name}</div>
-          <div class="ai-title">${a.title}</div>
-        </div>
-      </div>
-      <div class="ac-status">
-        <div class="dots">
-          <div class="dot" style="background:${a.color}"></div>
-          <div class="dot" style="background:${a.color}"></div>
-          <div class="dot" style="background:${a.color}"></div>
-        </div>
-        <span style="color:${a.color};opacity:.7">${a.s2}</span>
+async function loadAds() {
+  try {
+    const q = platFilter ? '?platform='+platFilter : '';
+    allAds = await api('/api/ads'+q);
+    renderAds();
+  } catch {
+    document.getElementById('ads-body').innerHTML = `<tr><td colspan="9"><div class="empty">
+      <strong>No data yet</strong>
+      1. Open terminal in this folder<br>
+      2. Run: <code>node server.js</code><br>
+      3. Run: <code>curl -X POST localhost:3000/api/sync</code>
+    </div></td></tr>`;
+  }
+}
+
+function renderAds() {
+  const rows = [...allAds]
+    .filter(a => !platFilter || a.platform === platFilter)
+    .sort((a,b) => {
+      const va = a[sortKey]??0, vb = b[sortKey]??0;
+      return sortDir==='desc' ? vb-va : va-vb;
+    });
+  if (!rows.length) { document.getElementById('ads-body').innerHTML='<tr><td colspan="9" class="empty">No active ads for this platform</td></tr>'; return; }
+  document.getElementById('ads-body').innerHTML = rows.map(a=>`
+    <tr class="ad-row ${selId===a.id?'sel':''}" onclick="selAd('${esc(a.id)}')">
+      <td><div class="ad-name">${esc(a.ad_name||a.id)}</div><div class="sub">${esc(a.headline||a.campaign_name||'')}</div></td>
+      <td><span class="badge ${a.platform}">${pl(a.platform)}</span></td>
+      <td class="num">${fm(a.spend)}</td>
+      <td class="num">${fp(a.ctr)}</td>
+      <td class="num">${a.frequency?a.frequency.toFixed(1)+'x':'—'}</td>
+      <td class="num">${a.thumb_stop_rate?fp(a.thumb_stop_rate*100):'—'}</td>
+      <td class="num">${fn(a.consultations)}</td>
+      <td class="num">${fm(a.cpp)}</td>
+      <td><span class="fatigue ${fl(a.fatigue_score)}">${fb(a.fatigue_score)}</span></td>
+    </tr>`).join('');
+}
+
+function srt(k) {
+  sortDir = sortKey===k ? (sortDir==='desc'?'asc':'desc') : 'desc';
+  sortKey = k; renderAds();
+}
+
+function pfilt(btn,p) {
+  document.querySelectorAll('#pf .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); platFilter=p; closeDetail(); loadAds();
+}
+
+async function selAd(id) {
+  selId = id; renderAds();
+  const el = document.getElementById('detail');
+  el.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  set('d-sugg','<div class="loading">…</div>');
+  set('d-signals','');
+  try {
+    const ad = await api('/api/ads/'+encodeURIComponent(id));
+    set('d-name', esc(ad.ad_name||id));
+    set('d-sub', `${pl(ad.platform)} · ${esc(ad.campaign_name||'?')} · Primary metric: ${ad.primary_metric||'consultations'}`);
+    const m = ad.history?.[0]||{};
+    set('d-spend', fm(m.spend));
+    set('d-cons',  fn(m.consultations));
+    set('d-cpp',   fm(m.cpp));
+    set('d-ctr',   fp(m.ctr));
+    set('d-freq',  m.frequency ? m.frequency.toFixed(2)+'x' : '—');
+    set('d-thumb', m.thumb_stop_rate ? fp(m.thumb_stop_rate*100) : '—');
+
+    const ctrData = [...(ad.history||[])].reverse().map(r=>r.ctr||0);
+    spark('spark', ctrData, '#3b82f6');
+
+    if (ad.fatigue?.signals) {
+      document.getElementById('d-signals').innerHTML =
+        Object.entries(ad.fatigue.signals).map(([k,v])=>
+          `<span class="chip">${k.replace(/_/g,' ')}: <b>${typeof v==='number'?v.toFixed?v.toFixed(2):v:v}</b></span>`
+        ).join('') || `<span class="chip">Score ${ad.fatigue.score}/100 — ${ad.fatigue.label}</span>`;
+    }
+
+    document.getElementById('d-sugg').innerHTML = ad.suggestions?.length
+      ? ad.suggestions.map(s=>`<div class="sugg ${s.suggestion_type}">${esc(s.suggestion_text)}</div>`).join('')
+      : '<div style="color:var(--muted);font-size:13px">No suggestions yet — run a sync first.</div>';
+  } catch(e) { set('d-name','Error: '+e.message); }
+}
+
+function closeDetail() { selId=null; document.getElementById('detail').classList.remove('open'); renderAds(); }
+
+function spark(id, data, color) {
+  const c = document.getElementById(id);
+  if (!c||!data.length) return;
+  const W=c.offsetWidth||600, H=60;
+  c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  const mn=Math.min(...data), mx=Math.max(...data)||1;
+  const pts=data.map((v,i)=>[(i/(data.length-1))*W, H-((v-mn)/(mx-mn||1))*(H-8)-4]);
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,color+'40'); g.addColorStop(1,color+'00');
+  ctx.beginPath(); ctx.moveTo(pts[0][0],H);
+  pts.forEach(([x,y])=>ctx.lineTo(x,y));
+  ctx.lineTo(pts[pts.length-1][0],H);
+  ctx.fillStyle=g; ctx.fill();
+  ctx.beginPath(); pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+  ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+}
+
+async function loadInsp() {
+  try {
+    allInsp = await api('/api/inspiration?limit=80&days=14');
+    renderInsp();
+  } catch {
+    document.getElementById('insp-grid').innerHTML = '<div class="empty"><strong>Not connected</strong>Run <code>node server.js</code> then trigger a sync.</div>';
+  }
+}
+
+function renderInsp() {
+  const items = inspFilter ? allInsp.filter(i=>i.source===inspFilter) : allInsp;
+  if (!items.length) {
+    document.getElementById('insp-grid').innerHTML='<div class="empty"><strong>No inspiration yet</strong>Click Refresh to fetch competitor ads.</div>';
+    return;
+  }
+  document.getElementById('insp-grid').innerHTML = items.map(i=>`
+    <div class="insp-card">
+      ${i.thumbnail_url
+        ?`<div class="insp-thumb"><img src="${esc(i.thumbnail_url)}" alt="" onerror="this.parentElement.textContent='No preview'"></div>`
+        :`<div class="insp-thumb">No preview</div>`}
+      <div class="insp-body">
+        <div class="insp-src">${srcLabel(i.source)} · ${i.fetched_date||''}</div>
+        <div class="insp-brand">${esc(i.brand_name||'Unknown')}</div>
+        <div class="insp-desc">${esc(i.description||'')}</div>
+        <span class="hook">${esc(i.hook_type||'Ad')}</span>
+        ${i.ad_url?`<a class="insp-link" href="${esc(i.ad_url)}" target="_blank" rel="noopener">View ↗</a>`:''}
       </div>
     </div>`).join('');
 }
-function selAgent(el){document.querySelectorAll('.agent-card').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
 
-// ── Budget Bars ────────────────────────────────────────
-function renderBudgets(){
-  document.getElementById('budget-bars').innerHTML=BUDGETS.map(b=>`
-    <div class="bitem">
-      <div class="bitem-top"><span class="blabel">${b.lbl}</span><span class="bpct" style="color:${b.c}">${b.pct}%</span></div>
-      <div class="btrack"><div class="bfill" data-p="${b.pct}" style="background:${b.c}"></div></div>
-    </div>`).join('');
-  requestAnimationFrame(()=>document.querySelectorAll('.bfill').forEach(el=>el.style.width=el.dataset.p+'%'));
+function ifilt(btn,s) {
+  document.querySelectorAll('#if .fbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); inspFilter=s; renderInsp();
 }
 
-// ── KPIs ───────────────────────────────────────────────
-function renderKPIs(){
-  document.getElementById('kpi-row').innerHTML=KPIS.map((k,i)=>{
-    const sp=sparkPath(k.spark,60,22);
-    return `<div class="kpi">
-      <div class="kpi-acc" style="background:${k.c}"></div>
-      <div class="kpi-lbl">${k.lbl}</div>
-      <div class="kpi-val" id="kv${i}" style="color:${k.c}">0</div>
-      <div class="kpi-bot">
-        <span class="kchg ${k.up?'up':'dn'}">${k.chg}</span>
-        <svg viewBox="0 0 60 22" width="60" height="22" style="overflow:visible">
-          <path d="${sp}" fill="none" stroke="${k.c}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>
-        </svg>
-      </div>
-    </div>`;
-  }).join('');
-  KPIS.forEach((k,i)=>{
-    const el=document.getElementById('kv'+i);
-    if(k.suf==='M') animCount(el,k.val,1400,v=>v.toFixed(2)+'M');
-    else if(k.pre==='$') animCount(el,k.val,1600,v=>'$'+Math.round(v).toLocaleString());
-    else animCount(el,k.val,1200,v=>Math.round(v).toLocaleString());
-  });
+async function refreshInsp() {
+  document.getElementById('insp-grid').innerHTML='<div class="loading">Fetching…</div>';
+  try { await api('/api/inspiration/refresh','POST'); setTimeout(loadInsp,4000); }
+  catch { document.getElementById('insp-grid').innerHTML='<div class="empty">Failed. Is server running?</div>'; }
 }
 
-// ── Ad Grid ────────────────────────────────────────────
-function renderAds(){
-  const seed=[...Array(11)].map((_,i)=>40+((i*37+13)%51));
-  document.getElementById('ad-grid').innerHTML=ADS.map((ad,i)=>{
-    const ag=AGENTS[ad.ai],rac=rc(ad.roas);
-    const act=ACTIONS[ad.ai][i%ACTIONS[ad.ai].length];
-    const icon=act.split(' ')[0],txt=act.slice(act.indexOf(' ')+1);
-    const sp=sparkPath([ad.roas*.8,ad.roas*.9,ad.roas*.85,ad.roas,ad.roas*1.05,ad.roas*.95,ad.roas],44,14);
-    const isVid=ad.fmt.toLowerCase().includes('video');
-    return `<div class="adc" data-st="${ad.st}" data-fmt="${isVid?'video':'image'}" data-id="${ad.id}" onclick="openDetail(${i})">
-      <div class="ad-img">
-        <div class="ad-img-bg" style="background:${ad.g}"></div>
-        <div class="badge-tl">${ad.id}</div>
-        <div class="status-b ${ad.st}">${ad.st.toUpperCase()}</div>
-        <div class="agt-ov">
-          ${sprite(ag.sp,ag.color,16)}
-          <div><div class="agt-nm" style="color:${ag.color}">${ag.name}</div><div class="agt-rl">${ag.title}</div></div>
-        </div>
-      </div>
-      <div class="ad-body">
-        <div class="ad-name">${ad.name}</div>
-        <div class="ad-hl">${ad.hl}</div>
-        <div class="ad-tags"><span class="ad-tag">${ad.obj}</span><span class="ad-tag">${ad.fmt}</span></div>
-        <div class="ad-met">
-          <div class="am"><div class="am-lbl">Spend</div><div class="am-val">${fm(ad.spend)}</div></div>
-          <div class="am"><div class="am-lbl">ROAS</div><div class="am-val" style="color:${rac}">${ad.roas}x</div></div>
-          <div class="am"><div class="am-lbl">CTR</div><div class="am-val">${ad.ctr}%</div></div>
-        </div>
-        <div class="ad-act" style="border-left:2px solid ${ag.color}">
-          <span class="act-icon">${icon}</span>
-          <span class="act-txt">${txt}</span>
-          <svg viewBox="0 0 44 14" width="44" height="14">
-            <path d="${sp}" fill="none" stroke="${ag.color}" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="ad-bbar"><div class="ad-bfill" data-p="${seed[i]}" style="background:${ag.color}"></div></div>
-      </div>
-    </div>`;
-  }).join('');
-  requestAnimationFrame(()=>document.querySelectorAll('.ad-bfill').forEach(el=>el.style.width=el.dataset.p+'%'));
+async function loadCamps() {
+  try {
+    const camps = await api('/api/campaigns');
+    if (!camps.length) { document.getElementById('camp-body').innerHTML='<tr><td colspan="4" class="empty">No campaigns synced yet</td></tr>'; return; }
+    const opts = ['consultations','ctr','purchases','leads','installs'];
+    document.getElementById('camp-body').innerHTML = camps.map(c=>`
+      <tr>
+        <td>${esc(c.campaign_name||c.campaign_id)}</td>
+        <td><span class="badge ${c.platform}">${pl(c.platform)}</span></td>
+        <td><select class="msel" onchange="setMetric('${esc(c.campaign_id)}',this.value)">
+          ${opts.map(o=>`<option ${c.primary_metric===o?'selected':''} value="${o}">${o}</option>`).join('')}
+        </select></td>
+        <td class="num">${c.ad_count||0}</td>
+      </tr>`).join('');
+  } catch { document.getElementById('camp-body').innerHTML='<tr><td colspan="4" class="empty">Not connected</td></tr>'; }
 }
 
-// ── Filter ─────────────────────────────────────────────
-function filterAds(chip){
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
-  chip.classList.add('on');
-  const f=chip.dataset.f;
-  document.querySelectorAll('.adc').forEach(card=>{
-    const show=f==='all'||card.dataset.st===f||card.dataset.fmt===f;
-    card.classList.toggle('hide',!show);
-  });
+async function setMetric(id,m) {
+  try { await api(`/api/campaigns/${encodeURIComponent(id)}/metric`,'PUT',{primary_metric:m}); } catch {}
 }
 
-// ── Chart ──────────────────────────────────────────────
-function renderChart(){
-  const svg=document.getElementById('perf-chart');
-  const xs=[28,106,184,262,340,418,496];
-  const yb=108,yt=8,h=yb-yt;
-  const smn=Math.min(...SPEND_D),smx=Math.max(...SPEND_D);
-  const rmn=Math.min(...REV_D),rmx=Math.max(...REV_D);
-  const sy=v=>yb-((v-smn)/(smx-smn))*h;
-  const ry=v=>yb-((v-rmn)/(rmx-rmn))*h;
-  const spts=SPEND_D.map((v,i)=>`${i?'L':'M'}${xs[i]},${sy(v).toFixed(1)}`).join(' ');
-  const rpts=REV_D.map((v,i)=>`${i?'L':'M'}${xs[i]},${ry(v).toFixed(1)}`).join(' ');
-  const grid=[.25,.5,.75].map(t=>`<line x1="18" y1="${(yb-t*h).toFixed(1)}" x2="530" y2="${(yb-t*h).toFixed(1)}" stroke="#2a2a35" stroke-width="1"/>`).join('');
-  const lbls=DAYS.map((d,i)=>`<text x="${xs[i]}" y="120" text-anchor="middle" fill="#3a3a50" font-size="9" font-family="IBM Plex Mono,monospace">${d}</text>`).join('');
-  svg.innerHTML=`<defs>
-    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c9a96e" stop-opacity=".28"/><stop offset="100%" stop-color="#c9a96e" stop-opacity="0"/></linearGradient>
-    <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6fbd3a" stop-opacity=".22"/><stop offset="100%" stop-color="#6fbd3a" stop-opacity="0"/></linearGradient>
-  </defs>
-  ${grid}
-  <path d="${rpts} L${xs[6]},${yb} L${xs[0]},${yb} Z" fill="url(#rg)"/>
-  <path d="${spts} L${xs[6]},${yb} L${xs[0]},${yb} Z" fill="url(#sg)"/>
-  <path d="${rpts}" fill="none" stroke="#6fbd3a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="${spts}" fill="none" stroke="#c9a96e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-  ${SPEND_D.map((v,i)=>`<circle cx="${xs[i]}" cy="${sy(v).toFixed(1)}" r="2.5" fill="#c9a96e"/>`).join('')}
-  ${REV_D.map((v,i)=>`<circle cx="${xs[i]}" cy="${ry(v).toFixed(1)}" r="2.5" fill="#6fbd3a"/>`).join('')}
-  ${lbls}`;
-}
-</script>
-<script>
-// ── Terminal ───────────────────────────────────────────
-let logIdx=0;
-function addLog(){
-  const [ai,msg]=LOGS[logIdx%LOGS.length];
-  const ag=AGENTS[ai];
-  const n=new Date(),ts=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
-  const t=document.getElementById('terminal');
-  const ln=document.createElement('div');
-  ln.className='log-ln';
-  ln.innerHTML=`<span class="lt">${ts}</span><span class="la" style="color:${ag.color}">${ag.code}</span><span class="lm">${msg}</span>`;
-  t.appendChild(ln);
-  while(t.children.length>14)t.removeChild(t.firstChild);
-  t.scrollTop=t.scrollHeight;
-  logIdx++;
+async function doSync() {
+  const btn=document.getElementById('sync-btn');
+  btn.disabled=true; btn.textContent='Syncing…';
+  set('live-status','Sync in progress…');
+  try {
+    await api('/api/sync','POST');
+    set('live-status','Sync started — check terminal');
+    setTimeout(async()=>{ await Promise.all([loadSummary(),loadAds(),loadInsp(),loadCamps()]); btn.disabled=false; btn.textContent='Sync Now'; },15000);
+  } catch { set('live-status','Failed — server running?'); btn.disabled=false; btn.textContent='Sync Now'; }
 }
 
-// ── Detail Panel ───────────────────────────────────────
-function openDetail(idx){
-  const ad=ADS[idx],ag=AGENTS[ad.ai],rac=rc(ad.roas);
-  const rev=Math.round(ad.spend*ad.roas);
-  const cpc=(ad.spend/(ad.impr*ad.ctr/100)).toFixed(2);
-  const recs=getRecs(ad);
-  document.getElementById('dp-inner').innerHTML=`
-    <div class="dp-img">
-      <div class="dp-img-bg" style="background:${ad.g}"></div>
-      <div class="dp-img-ov"></div>
-      <div class="dp-img-bot">
-        <div class="dp-adname">${ad.name}</div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <span class="status-b ${ad.st}" style="position:static">${ad.st.toUpperCase()}</span>
-          <span style="font-size:10px;color:rgba(255,255,255,.45)">${ad.fmt}</span>
-        </div>
-      </div>
-    </div>
-    <div class="dp-body">
-      <div class="dp-sec">Performance Metrics</div>
-      <div class="dp-mets">
-        <div class="dp-m"><div class="dp-ml">Spend</div><div class="dp-mv">${fm(ad.spend)}</div></div>
-        <div class="dp-m"><div class="dp-ml">Revenue</div><div class="dp-mv" style="color:var(--green)">$${rev.toLocaleString()}</div></div>
-        <div class="dp-m"><div class="dp-ml">ROAS</div><div class="dp-mv" style="color:${rac}">${ad.roas}x</div></div>
-        <div class="dp-m"><div class="dp-ml">CTR</div><div class="dp-mv">${ad.ctr}%</div></div>
-        <div class="dp-m"><div class="dp-ml">Conversions</div><div class="dp-mv">${ad.conv}</div></div>
-        <div class="dp-m"><div class="dp-ml">CPC</div><div class="dp-mv">$${cpc}</div></div>
-      </div>
-      <div class="dp-sec">Agent Analysis</div>
-      <div class="analysis">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-          ${sprite(ag.sp,ag.color,18)}
-          <span style="color:${ag.color};font-weight:600">${ag.code} ${ag.name}</span>
-          <span style="color:var(--text3);margin-left:2px">${ag.title}</span>
-        </div>
-        <div class="aln"><span style="color:${ag.color}">→</span><span>${ACTIONS[ad.ai][0].slice(ACTIONS[ad.ai][0].indexOf(' ')+1)}</span></div>
-        <div class="aln"><span style="color:${ag.color}">→</span><span>${ACTIONS[ad.ai][1].slice(ACTIONS[ad.ai][1].indexOf(' ')+1)}</span></div>
-      </div>
-      <div class="dp-sec">Recommendations</div>
-      ${recs.map(r=>`<div class="rec ${r.cl}"><div class="rec-ico">${r.ico}</div><div class="rec-txt"><strong>${r.ttl}</strong><span>${r.body}</span></div></div>`).join('')}
-    </div>`;
-  document.getElementById('dp').classList.add('open');
-  document.getElementById('bk').classList.add('open');
-  document.querySelectorAll('.adc').forEach(c=>c.classList.remove('sel'));
-  document.querySelector(`[data-id="${ad.id}"]`)?.classList.add('sel');
+function showTab(t) {
+  ['perf','insp','camp'].forEach(id=>{ document.getElementById('tab-'+id).style.display=id===t?'block':'none'; });
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>b.classList.toggle('active',['perf','insp','camp'][i]===t));
 }
 
-function getRecs(ad){
-  if(ad.roas>=4.5) return [
-    {ico:'📈',cl:'g', ttl:'Scale Budget',            body:`ROAS of ${ad.roas}x is above target. Increase daily budget 20–30% to maximize returns.`},
-    {ico:'🔁',cl:'au',ttl:'Duplicate for A/B Test',  body:'Clone with a new headline variant to test copy sensitivity at current scale.'},
-    {ico:'🧠',cl:'b', ttl:'Broaden Audience',        body:'Strong signal — try expanding to 30–55 lookalike audiences for incremental reach.'},
-  ];
-  if(ad.st==='learning') return [
-    {ico:'⏳',cl:'b', ttl:'In Learning Phase',       body:`${ad.conv}/50 conversions so far. Avoid edits until learning phase completes.`},
-    {ico:'💰',cl:'au',ttl:'Maintain Budget Stability',body:'Keep spend stable — fluctuations slow Meta\'s delivery optimization.'},
-    {ico:'📊',cl:'g', ttl:'Monitor CTR',             body:`CTR of ${ad.ctr}% is ${ad.ctr>2.5?'healthy — hold steady':'below avg — consider a creative refresh if it drops below 1.5%'}.`},
-  ];
-  if(ad.st==='paused') return [
-    {ico:'⚠️',cl:'au',ttl:'Review Before Reactivating',body:`ROAS of ${ad.roas}x is below the 3.5x target threshold. Refresh creative before restarting.`},
-    {ico:'🎨',cl:'b', ttl:'Generate New Variations',  body:'Run GENERATOR agent: 5 new Nano Banana 2 variations with different hooks and moods.'},
-    {ico:'🎯',cl:'g', ttl:'Narrow Audience',          body:'Tighten targeting to high-intent: men 28–42 with active hair loss interest signals.'},
-  ];
-  return [
-    {ico:'🔍',cl:'au',ttl:'Monitor Closely',          body:`ROAS of ${ad.roas}x is within range. Watch for trend changes over the next 3 days.`},
-    {ico:'📝',cl:'b', ttl:'Test New Copy',             body:'Try headline variants emphasizing the SiloxysSystem™ targeted delivery advantage.'},
-    {ico:'📐',cl:'g', ttl:'Test New Format',           body:'If running image, test a Reels video variant — typically delivers +30% CTR.'},
-  ];
-}
+// Formatters
+const fm = v => (v==null||v===0) ? '—' : '$'+Number(v).toLocaleString('en-AU',{maximumFractionDigits:0});
+const fn = v => v==null ? '—' : Number(v).toLocaleString();
+const fp = v => (v==null||v===0) ? '—' : Number(v).toFixed(2)+'%';
+const fl = s => { if(!s&&s!==0)return'healthy'; if(s>=81)return'critical'; if(s>=61)return'warning'; if(s>=31)return'watch'; return'healthy'; };
+const fb = s => { if(!s&&s!==0)return'— Healthy'; if(s>=81)return s+' Critical'; if(s>=61)return s+' Warning'; if(s>=31)return s+' Watch'; return s+' Healthy'; };
+const pl = p => ({meta:'Meta',tiktok:'TikTok',reddit:'Reddit'}[p]||p||'—');
+const srcLabel = s => ({fb_library:'Meta Ad Library',tiktok_creative:'TikTok Trends',reddit_organic:'Reddit'}[s]||s);
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const set = (id,html) => { const el=document.getElementById(id); if(el) el.innerHTML=html; };
 
-function closeDetail(){
-  document.getElementById('dp').classList.remove('open');
-  document.getElementById('bk').classList.remove('open');
-  document.querySelectorAll('.adc').forEach(c=>c.classList.remove('sel'));
-}
-
-// ── Header controls ────────────────────────────────────
-function switchTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on')}
-
-let syncT;
-function doSync(){
-  const b=document.getElementById('sync-btn');
-  b.textContent='↻ Syncing...';b.className='sync-btn sy';
-  clearTimeout(syncT);
-  syncT=setTimeout(()=>{
-    b.textContent='✓ Synced';b.className='sync-btn sd';
-    syncT=setTimeout(()=>{b.textContent='⟳ Sync';b.className='sync-btn'},2000);
-  },1800);
-}
-
-function updateClock(){
-  const n=new Date();
-  document.getElementById('hdr-date').textContent=
-    n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+
-    ' · '+n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
-
-// ── Init ───────────────────────────────────────────────
-renderAgents();
-renderBudgets();
-renderKPIs();
-renderAds();
-renderChart();
-for(let i=0;i<6;i++) addLog();
-setInterval(addLog,3500);
-updateClock();
-setInterval(updateClock,1000);
+boot();
 </script>
 </body>
 </html>

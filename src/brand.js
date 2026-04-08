@@ -75,6 +75,29 @@ export const PRODUCTS = {
  * aspectRatio maps to Nano Banana 2's aspect_ratio param.
  * resolution maps to Nano Banana 2's resolution param (0.5K | 1K | 2K | 4K).
  */
+// ── Competitor brands to monitor in the Facebook Ad Library ─────────────────
+// Add or remove brands here as needed.
+export const COMPETITOR_BRANDS = [
+  'Keeps',
+  'Hims',
+  'Manual',
+  'Pilot',
+  'Lana Health',
+  'Happy Head',
+  'Nutrafol',
+  'Minoxidil Max'
+];
+
+// Search terms used when scanning the Facebook Ad Library
+export const AD_LIBRARY_SEARCH_TERMS = [
+  'hair loss finasteride',
+  'topical finasteride',
+  'hair regrowth men',
+  'DHT blocker',
+  'minoxidil finasteride',
+  'hair loss treatment Australia'
+];
+
 export const AD_FORMATS = {
   instagramFeed:    { width: 1080, height: 1080, aspectRatio: "1:1",  resolution: "1K", label: "Instagram Feed (1:1)" },
   instagramStory:   { width: 1080, height: 1920, aspectRatio: "9:16", resolution: "1K", label: "Instagram Story (9:16)" },
