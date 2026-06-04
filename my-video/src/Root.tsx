@@ -2,6 +2,7 @@ import "./index.css";
 import { Composition } from "remotion";
 import { HelloWorld, myCompSchema } from "./HelloWorld";
 import { Logo, myCompSchema2 } from "./HelloWorld/Logo";
+import { MyAnimation, myAnimationSchema } from "./MyAnimation";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -40,6 +41,23 @@ export const RemotionRoot: React.FC = () => {
         defaultProps={{
           logoColor1: "#91dAE2" as const,
           logoColor2: "#86A8E7" as const,
+        }}
+      />
+
+      {/* Custom animation example: npx remotion render MyAnimation */}
+      <Composition
+        id="MyAnimation"
+        component={MyAnimation}
+        durationInFrames={180}
+        fps={30}
+        width={1920}
+        height={1080}
+        schema={myAnimationSchema}
+        defaultProps={{
+          brand: "XYON Health",
+          tagline: "Science-backed wellness, delivered.",
+          accent: "#36d399",
+          features: ["Clinically tested", "Made in USA", "30-day guarantee"],
         }}
       />
     </>
