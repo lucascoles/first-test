@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#2a2a2a" />
+<title>XYON — Find Your Hair Loss Treatment in 60 Seconds</title>
+<meta name="description" content="Take the 60-second XYON hair assessment and get a clinically-backed, prescriber-reviewed treatment matched to your hair loss — topical, targeted, and delivered free." />
+
+<!-- ============================================================
+     SOCIAL / OG
+============================================================ -->
+<meta property="og:title" content="XYON — The New Standard in Treating Hair Loss" />
+<meta property="og:description" content="60-second assessment. Clinically-backed. Prescriber-reviewed. Find your match." />
+<meta property="og:type" content="website" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   XYON QUIZ FUNNEL — design system
+   Brand: charcoal #2a2a2a · warm gold #c9a96e · cream #faf9f5
+============================================================ */
+:root{
+  --ink:#1c1b19;
+  --charcoal:#2a2a2a;
+  --gold:#c9a96e;
+  --gold-deep:#a9854a;
+  --gold-soft:#efe6d4;
+  --bg:#faf9f5;
+  --paper:#ffffff;
+  --muted:#76726a;
+  --line:#e8e3d7;
+  --green:#3a8f6f;
+  --green-soft:#e8f3ee;
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 18px 50px -22px rgba(40,36,28,.45);
+  --shadow-soft:0 8px 30px -16px rgba(40,36,28,.35);
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --max:520px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+h1,h2,h3,.serif{font-family:'Fraunces',Georgia,'Times New Roman',serif;font-weight:500;letter-spacing:-.01em;line-height:1.12}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 20px}
+
+/* ---------- top brand bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,249,245,.86);
+  backdrop-filter:saturate(160%) blur(12px);
+  -webkit-backdrop-filter:saturate(160%) blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:var(--max);margin:0 auto;padding:13px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.logo{font-family:'Fraunces',serif;font-weight:600;font-size:21px;letter-spacing:.18em;color:var(--charcoal)}
+.logo b{color:var(--gold-deep);font-weight:600}
+.topbar-tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* ---------- progress ---------- */
+.progress{height:3px;background:var(--line);width:100%}
+.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-deep));transition:width .5s var(--ease);border-radius:0 3px 3px 0}
+
+/* ---------- screen system ---------- */
+.screen{display:none;animation:fadeUp .5s var(--ease) both}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+
+/* ============================================================
+   INTRO / HERO
+============================================================ */
+.hero{padding:34px 0 40px;text-align:center}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold-deep);background:var(--gold-soft);
+  padding:7px 14px;border-radius:100px;margin-bottom:22px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(58,143,111,.5);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(58,143,111,.45)}70%{box-shadow:0 0 0 7px rgba(58,143,111,0)}100%{box-shadow:0 0 0 0 rgba(58,143,111,0)}}
+.hero h1{font-size:clamp(31px,8.5vw,40px);color:var(--charcoal);margin-bottom:16px}
+.hero h1 em{font-style:italic;color:var(--gold-deep)}
+.hero p.sub{font-size:17px;color:var(--muted);max-width:30ch;margin:0 auto 26px}
+
+.hero-visual{
+  position:relative;width:min(360px,86%);margin:6px auto 30px;
+  aspect-ratio:1/1;border-radius:50%;
+  background:
+    radial-gradient(120% 120% at 50% 10%, #fff 0%, #f3eee2 55%, #e7dcc5 100%);
+  box-shadow:var(--shadow);
+  display:grid;place-items:center;overflow:hidden;
+}
+.hero-visual::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,169,110,.4)}
+.hero-photo{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.hero-badge{
+  position:absolute;background:var(--paper);border:1px solid var(--line);
+  border-radius:14px;padding:10px 13px;box-shadow:var(--shadow-soft);
+  font-size:12px;font-weight:600;color:var(--charcoal);display:flex;align-items:center;gap:8px;
+}
+.hero-badge .ic{width:26px;height:26px;border-radius:8px;background:var(--green-soft);display:grid;place-items:center;color:var(--green)}
+.hero-badge.b1{top:14%;left:-6%;animation:floaty 5s ease-in-out infinite}
+.hero-badge.b2{bottom:16%;right:-8%;animation:floaty 5s ease-in-out .8s infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  background:var(--charcoal);color:#fff;font-weight:600;font-size:17px;
+  padding:18px 24px;border-radius:100px;
+  box-shadow:0 14px 30px -12px rgba(42,42,42,.7);
+  transition:transform .15s var(--ease),box-shadow .2s var(--ease),background .2s;
+}
+.btn:active{transform:scale(.975)}
+.btn.gold{background:linear-gradient(180deg,#d8ba81,var(--gold-deep));color:#312a1c;box-shadow:0 14px 32px -12px rgba(169,133,74,.75)}
+.btn .arrow{transition:transform .2s var(--ease)}
+.btn:hover .arrow{transform:translateX(4px)}
+.btn-note{font-size:13px;color:var(--muted);margin-top:13px;display:flex;align-items:center;justify-content:center;gap:6px}
+
+.trust-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:30px;flex-wrap:wrap}
+.trust-item{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500}
+.trust-item svg{color:var(--gold-deep);flex:none}
+
+.stars{display:inline-flex;gap:2px;color:var(--gold)}
+.rating-line{margin-top:26px;font-size:13.5px;color:var(--muted)}
+.rating-line b{color:var(--charcoal)}
+
+/* ============================================================
+   QUIZ
+============================================================ */
+.quiz-head{padding:26px 0 6px}
+.step-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.step-count{font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--gold-deep)}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--muted)}
+.back-btn:disabled{opacity:0;pointer-events:none}
+.q-title{font-size:clamp(25px,6.6vw,31px);color:var(--charcoal);margin-bottom:8px}
+.q-help{font-size:15px;color:var(--muted);margin-bottom:24px}
+
+.options{display:flex;flex-direction:column;gap:12px;padding-bottom:30px}
+.option{
+  display:flex;align-items:center;gap:15px;text-align:left;width:100%;
+  background:var(--paper);border:1.5px solid var(--line);border-radius:var(--radius);
+  padding:17px 18px;transition:all .18s var(--ease);
+  box-shadow:0 1px 0 rgba(40,36,28,.02);
+}
+.option:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:var(--shadow-soft)}
+.option.selected{border-color:var(--gold-deep);background:#fffdf8;box-shadow:0 0 0 3px rgba(201,169,110,.25)}
+.option .emoji{
+  width:46px;height:46px;flex:none;border-radius:12px;display:grid;place-items:center;
+  background:var(--gold-soft);font-size:23px;line-height:1;
+}
+.option .otxt{flex:1}
+.option .olabel{display:block;font-weight:600;font-size:16px;color:var(--charcoal);line-height:1.25}
+.option .odesc{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.option .check{
+  width:24px;height:24px;flex:none;border-radius:50%;border:2px solid var(--line);
+  display:grid;place-items:center;color:#fff;transition:all .18s var(--ease);
+}
+.option.selected .check{background:var(--gold-deep);border-color:var(--gold-deep)}
+.option .check svg{opacity:0;transform:scale(.5);transition:all .18s var(--ease)}
+.option.selected .check svg{opacity:1;transform:none}
+
+/* ============================================================
+   ANALYZING
+============================================================ */
+#screen-analyzing{text-align:center;padding:70px 0 80px;min-height:78vh;display:none;place-content:center}
+#screen-analyzing.active{display:grid}
+.analyzer{width:128px;height:128px;margin:0 auto 30px;position:relative}
+.analyzer svg{transform:rotate(-90deg)}
+.analyzer .track{stroke:var(--line)}
+.analyzer .fill{stroke:url(#ag);stroke-linecap:round;transition:stroke-dashoffset .3s linear}
+.analyzer .pct{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-family:'Fraunces',serif;font-size:32px;font-weight:600;color:var(--charcoal);
+}
+#analyzeTitle{font-size:25px;color:var(--charcoal);margin-bottom:10px}
+.analyze-steps{list-style:none;max-width:300px;margin:26px auto 0;text-align:left;display:flex;flex-direction:column;gap:13px}
+.analyze-steps li{display:flex;align-items:center;gap:12px;font-size:14.5px;color:var(--muted);opacity:.35;transition:opacity .4s,color .4s}
+.analyze-steps li.done{opacity:1;color:var(--charcoal)}
+.analyze-steps li .tick{
+  width:23px;height:23px;flex:none;border-radius:50%;border:2px solid var(--line);
+  display:grid;place-items:center;color:#fff;transition:all .3s;
+}
+.analyze-steps li.done .tick{background:var(--green);border-color:var(--green)}
+.analyze-steps li .tick svg{opacity:0;transition:opacity .3s}
+.analyze-steps li.done .tick svg{opacity:1}
+
+/* ============================================================
+   RESULT
+============================================================ */
+.result-hero{text-align:center;padding:30px 0 6px}
+.match-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--green-soft);color:var(--green);
+  font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:8px 15px;border-radius:100px;margin-bottom:18px;animation:pop .5s var(--ease) both;
+}
+.result-hero h2{font-size:clamp(26px,6.8vw,32px);color:var(--charcoal);margin-bottom:14px}
+.result-hero h2 em{font-style:italic;color:var(--gold-deep)}
+.result-because{
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:var(--radius-sm);padding:15px 17px;text-align:left;
+  font-size:14.5px;color:#4a473f;margin:4px auto 0;box-shadow:var(--shadow-soft);
+}
+.result-because b{color:var(--charcoal)}
+
+/* product card */
+.product-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;margin-top:26px;
+}
+.product-top{
+  position:relative;padding:30px 24px 24px;text-align:center;
+  background:radial-gradient(130% 100% at 50% 0%,#fffaf0 0%,#fff 65%);
+  border-bottom:1px solid var(--line);
+}
+.product-rx{position:absolute;top:14px;right:14px;font-size:10.5px;font-weight:700;letter-spacing:.1em;color:var(--gold-deep);background:var(--gold-soft);padding:5px 9px;border-radius:7px}
+.product-img{
+  width:185px;height:236px;margin:0 auto 18px;border-radius:16px;
+  position:relative;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 25%,#fffdf8,#f3ece0);
+  box-shadow:0 22px 44px -22px rgba(40,36,28,.5);
+}
+.product-img img{width:100%;height:100%;object-fit:cover}
+.product-name{font-family:'Fraunces',serif;font-size:22px;color:var(--charcoal);font-weight:600;line-height:1.2}
+.product-sub{font-size:13.5px;color:var(--muted);margin-top:6px}
+.product-mech{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+.mech-pill{font-size:12px;font-weight:600;color:#4a473f;background:#f4f0e6;border:1px solid var(--line);padding:7px 12px;border-radius:100px;display:flex;align-items:center;gap:6px}
+.mech-pill .d{width:6px;height:6px;border-radius:50%;background:var(--gold-deep)}
+
+.product-body{padding:22px 24px 26px}
+.benefit-list{list-style:none;display:flex;flex-direction:column;gap:13px;margin-bottom:22px}
+.benefit-list li{display:flex;gap:12px;font-size:14.5px;color:#3c3a34}
+.benefit-list .bi{width:24px;height:24px;flex:none;border-radius:7px;background:var(--green-soft);color:var(--green);display:grid;place-items:center}
+.benefit-list b{color:var(--charcoal)}
+
+.price-row{display:flex;align-items:baseline;gap:10px;justify-content:center;margin-bottom:4px}
+.price{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:var(--charcoal)}
+.price small{font-size:15px;color:var(--muted);font-weight:400}
+.price-was{font-size:16px;color:var(--muted);text-decoration:line-through}
+.price-note{text-align:center;font-size:12.5px;color:var(--green);font-weight:600;margin-bottom:18px}
+
+.sticky-cta{
+  position:fixed;bottom:0;left:0;right:0;z-index:60;
+  background:linear-gradient(180deg,rgba(250,249,245,0),var(--bg) 26%);
+  padding:16px 20px calc(16px + env(safe-area-inset-bottom));
+  transform:translateY(120%);transition:transform .35s var(--ease);
+}
+.sticky-cta.show{transform:none}
+.sticky-cta-inner{max-width:var(--max);margin:0 auto}
+.sticky-mini{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;font-size:13px;color:var(--muted)}
+.sticky-mini b{color:var(--charcoal)}
+
+/* sections */
+.sec{padding:40px 0;border-top:1px solid var(--line)}
+.sec-eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);text-align:center;margin-bottom:10px}
+.sec h3{font-size:clamp(23px,6vw,28px);color:var(--charcoal);text-align:center;margin-bottom:8px}
+.sec .lead{text-align:center;color:var(--muted);max-width:34ch;margin:0 auto 28px;font-size:15px}
+
+/* before / after */
+.ba-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-soft)}
+.ba-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--line)}
+.ba-half{position:relative;aspect-ratio:3/4;display:grid;place-items:end center;overflow:hidden}
+.ba-half.before{background:linear-gradient(160deg,#cdbfa3,#a08e6c)}
+.ba-half.after{background:linear-gradient(160deg,#6f5d3e,#3a3024)}
+.ba-scalp{position:absolute;top:14%;width:58%;height:40%;border-radius:50% 50% 46% 46%;}
+.ba-half.before .ba-scalp{background:radial-gradient(circle at 50% 35%,#e9dcc2 0%,#cdbb98 70%);box-shadow:inset 0 -10px 20px rgba(0,0,0,.12)}
+.ba-half.after .ba-scalp{background:radial-gradient(circle at 50% 30%,#5a4a30 0%,#3a3024 70%)}
+.ba-tag{position:absolute;top:10px;left:10px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,0,0,.55);color:#fff;padding:4px 9px;border-radius:6px}
+.ba-half.after .ba-tag{background:var(--green)}
+.ba-foot{padding:15px 17px}
+.ba-quote{font-size:14.5px;color:#3c3a34;line-height:1.5}
+.ba-by{display:flex;align-items:center;justify-content:space-between;margin-top:11px;font-size:12.5px;color:var(--muted)}
+.ba-verified{display:flex;align-items:center;gap:5px;color:var(--green);font-weight:600}
+
+/* timeline */
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:16px;padding-bottom:26px;position:relative}
+.tl-item:not(:last-child)::before{content:"";position:absolute;left:21px;top:44px;bottom:0;width:2px;background:var(--line)}
+.tl-dot{width:44px;height:44px;flex:none;border-radius:50%;background:var(--gold-soft);border:2px solid var(--gold);color:var(--gold-deep);display:grid;place-items:center;font-family:'Fraunces',serif;font-weight:600;font-size:14px;z-index:1}
+.tl-body h4{font-family:'Inter',sans-serif;font-weight:700;font-size:15.5px;color:var(--charcoal);margin-bottom:3px}
+.tl-body p{font-size:14px;color:var(--muted)}
+
+/* how it works */
+.steps{display:flex;flex-direction:column;gap:14px}
+.step-card{display:flex;gap:15px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px 17px}
+.step-num{width:30px;height:30px;flex:none;border-radius:9px;background:var(--charcoal);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+.step-card h4{font-size:15.5px;font-weight:700;color:var(--charcoal);margin-bottom:3px}
+.step-card p{font-size:14px;color:var(--muted)}
+
+/* reviews */
+.review{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-sm);padding:17px 18px;margin-bottom:13px}
+.review .stars{font-size:14px;margin-bottom:8px}
+.review p{font-size:14.5px;color:#3c3a34;line-height:1.5}
+.review .who{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+.review .av{width:30px;height:30px;border-radius:50%;background:var(--gold-soft);color:var(--gold-deep);display:grid;place-items:center;font-weight:700;font-size:13px}
+.review .who b{color:var(--charcoal)}
+.review .who .vf{margin-left:auto;color:var(--green);font-weight:600;font-size:12px;display:flex;align-items:center;gap:4px}
+
+/* guarantee */
+.guarantee{background:linear-gradient(160deg,#2f2f2f,#1f1f1f);color:#f3ead7;border-radius:var(--radius);padding:28px 24px;text-align:center}
+.guarantee .gi{width:54px;height:54px;margin:0 auto 14px;border-radius:14px;background:rgba(201,169,110,.18);color:var(--gold);display:grid;place-items:center}
+.guarantee h3{color:#fff;margin-bottom:8px}
+.guarantee p{color:#cfc7b6;font-size:14.5px;max-width:34ch;margin:0 auto}
+
+/* faq */
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;text-align:left;padding:17px 2px;font-weight:600;font-size:15.5px;color:var(--charcoal)}
+.faq-q .pm{width:24px;height:24px;flex:none;border-radius:50%;background:var(--gold-soft);color:var(--gold-deep);display:grid;place-items:center;transition:transform .25s}
+.faq-item.open .faq-q .pm{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s var(--ease)}
+.faq-a p{padding:0 2px 17px;font-size:14.5px;color:var(--muted);line-height:1.55}
+
+/* footer */
+.footer{padding:34px 0 120px;text-align:center;border-top:1px solid var(--line)}
+.footer .logo{font-size:18px;margin-bottom:14px}
+.footer p{font-size:11.5px;color:#9a958a;line-height:1.6;max-width:42ch;margin:0 auto 10px}
+.footer a{color:var(--muted);text-decoration:underline}
+.footer .legal{font-size:10.5px;color:#b0aba0;margin-top:14px}
+
+.urgency{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--charcoal);background:var(--gold-soft);border:1px solid var(--gold);border-radius:100px;padding:9px 16px;width:max-content;margin:0 auto 22px}
+.urgency .dot{width:7px;height:7px;border-radius:50%;background:#d9534f;animation:pulse 1.6s infinite}
+
+.disclaimer{font-size:11.5px;color:#9a958a;text-align:center;margin-top:18px;line-height:1.5;padding:0 6px}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRESS + BRAND BAR
+============================================================ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">XY<b>O</b>N</div>
+    <div class="topbar-tag" id="topTag">Hair Assessment</div>
+  </div>
+  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+</header>
+
+<main class="wrap" id="app">
+
+  <!-- ========================= INTRO ========================= -->
+  <section class="screen active" id="screen-intro">
+    <div class="hero">
+      <span class="eyebrow"><span class="dot"></span> Clinically-backed · Prescriber-reviewed</span>
+      <h1>Your hair loss isn't random. <em>Your treatment shouldn't be either.</em></h1>
+      <p class="sub">Answer 3 quick questions and get the treatment matched to <em>your</em> hair — in 60 seconds.</p>
+
+      <div class="hero-visual">
+        <img class="hero-photo" src="assets/xyon-hero.webp" width="680" height="680" alt="Man with full, healthy hair" />
+        <div class="hero-badge b1"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span> Targets the scalp</div>
+        <div class="hero-badge b2"><span class="ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span> 3–6 mo results</div>
+      </div>
+
+      <button class="btn gold" id="startBtn" data-evt="StartQuiz">
+        Start my free assessment
+        <svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="btn-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        No commitment · Free &amp; discreet · 60 seconds
+      </div>
+
+      <div class="trust-row">
+        <div class="trust-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z"/></svg> Prescriber-reviewed</div>
+        <div class="trust-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h12"/></svg> Topical, not pills</div>
+        <div class="trust-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="m16 8 4 0 3 3v5h-7M5.5 18.5a2.5 2.5 0 1 0 0 .01M17.5 18.5a2.5 2.5 0 1 0 0 .01"/></svg> Free delivery</div>
+      </div>
+
+      <div class="rating-line">
+        <span class="stars">★★★★★</span>
+        <b>4.8/5</b> from <b>2,400+</b> men on the XYON system
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= QUIZ ========================= -->
+  <section class="screen" id="screen-quiz">
+    <div class="quiz-head">
+      <div class="step-meta">
+        <span class="step-count" id="stepCount">Question 1 of 3</span>
+        <button class="back-btn" id="backBtn" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg> Back
+        </button>
+      </div>
+      <h2 class="q-title" id="qTitle"></h2>
+      <p class="q-help" id="qHelp"></p>
+    </div>
+    <div class="options" id="options"></div>
+  </section>
+
+  <!-- ========================= ANALYZING ========================= -->
+  <section class="screen" id="screen-analyzing">
+    <div>
+      <div class="analyzer">
+        <svg width="128" height="128" viewBox="0 0 128 128">
+          <defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ba81"/><stop offset="1" stop-color="#a9854a"/></linearGradient></defs>
+          <circle class="track" cx="64" cy="64" r="56" fill="none" stroke-width="9"/>
+          <circle class="fill" id="ring" cx="64" cy="64" r="56" fill="none" stroke-width="9" stroke-dasharray="351.8" stroke-dashoffset="351.8"/>
+        </svg>
+        <div class="pct" id="pct">0%</div>
+      </div>
+      <h3 id="analyzeTitle">Building your hair profile…</h3>
+      <p class="q-help" style="text-align:center;max-width:30ch;margin:0 auto">Matching your answers against XYON's clinical treatment protocols.</p>
+      <ul class="analyze-steps" id="analyzeSteps">
+        <li data-s="0"><span class="tick"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span> Analysing your pattern of loss</li>
+        <li data-s="1"><span class="tick"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span> Reviewing stage &amp; timeline</li>
+        <li data-s="2"><span class="tick"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span> Matching to your goal</li>
+        <li data-s="3"><span class="tick"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span> Selecting your treatment</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========================= RESULT ========================= -->
+  <section class="screen" id="screen-result">
+    <div class="result-hero">
+      <span class="match-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+        98% match found
+      </span>
+      <h2>Your personalised match:<br><em>Topical Finasteride &amp; Minoxidil</em></h2>
+      <div class="result-because" id="because"></div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-top">
+        <span class="product-rx">Rx · Prescriber-reviewed</span>
+        <div class="product-img">
+          <img src="assets/xyon-product.webp" width="560" height="750" alt="XYON Topical Finasteride & Minoxidil GelRx bottle" />
+        </div>
+        <div class="product-name">Topical Finasteride &amp; Minoxidil</div>
+        <div class="product-sub">with SiloxysSystem™ GelRx delivery</div>
+        <div class="product-mech">
+          <span class="mech-pill"><span class="d"></span> Blocks DHT at the scalp</span>
+          <span class="mech-pill"><span class="d"></span> Stimulates regrowth</span>
+        </div>
+      </div>
+      <div class="product-body">
+        <ul class="benefit-list">
+          <li><span class="bi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><span><b>Dual-action in one application</b> — a DHT blocker and a growth stimulator, combined.</span></li>
+          <li><span class="bi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><span><b>Topical, not a daily pill</b> — SiloxysSystem™ delivers it into the scalp to <b>reduce systemic side-effect risk</b>.</span></li>
+          <li><span class="bi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><span><b>Prescriber-reviewed &amp; adjusted</b> to your assessment — no clinic visit needed.</span></li>
+          <li><span class="bi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span><span><b>Free, discreet delivery</b> — plain packaging, cancel anytime.</span></li>
+        </ul>
+
+        <div class="price-row">
+          <span class="price">£119<small>/mo</small></span>
+          <span class="price-was">£149</span>
+        </div>
+        <div class="price-note">First month 20% off · applied at checkout</div>
+
+        <button class="btn gold" data-evt="InitiateCheckout" data-cta>
+          Claim my treatment plan
+          <svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <div class="btn-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z"/></svg>
+          Only pay if a prescriber approves your plan
+        </div>
+      </div>
+    </div>
+
+    <!-- before / after -->
+    <section class="sec">
+      <div class="sec-eyebrow">Real results</div>
+      <h3>What the system does over time</h3>
+      <p class="lead">Representative results from men on the XYON topical system. Individual results vary.</p>
+      <div class="ba-card">
+        <div class="ba-imgs">
+          <div class="ba-half before"><span class="ba-tag">Before</span><div class="ba-scalp"></div></div>
+          <div class="ba-half after"><span class="ba-tag">Month 6</span><div class="ba-scalp"></div></div>
+        </div>
+        <div class="ba-foot">
+          <p class="ba-quote">“The thinning at my crown stopped within a couple of months — then it actually started filling back in. I wish I'd started sooner.”</p>
+          <div class="ba-by">
+            <span>James, 34 · 6 months on XYON</span>
+            <span class="ba-verified"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Verified customer</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- timeline -->
+    <section class="sec">
+      <div class="sec-eyebrow">Your timeline</div>
+      <h3>What to expect, month by month</h3>
+      <div class="timeline" style="margin-top:22px">
+        <div class="tl-item"><div class="tl-dot">0–1</div><div class="tl-body"><h4>Start &amp; stabilise</h4><p>You begin daily topical application. The active ingredients start blocking DHT at the follicle.</p></div></div>
+        <div class="tl-item"><div class="tl-dot">1–3</div><div class="tl-body"><h4>Shedding slows</h4><p>Most men notice less hair in the drain and on the pillow as loss is brought under control.</p></div></div>
+        <div class="tl-item"><div class="tl-dot">3–6</div><div class="tl-body"><h4>Visible regrowth</h4><p>New growth and increased density typically become noticeable across the thinning areas.</p></div></div>
+        <div class="tl-item"><div class="tl-dot">6+</div><div class="tl-body"><h4>Fuller, maintained</h4><p>Continued use maintains and builds on your results. Consistency is what protects the gains.</p></div></div>
+      </div>
+    </section>
+
+    <!-- how it works -->
+    <section class="sec">
+      <div class="sec-eyebrow">How it works</div>
+      <h3>From quiz to doorstep in 4 steps</h3>
+      <div class="steps" style="margin-top:22px">
+        <div class="step-card"><div class="step-num">1</div><div><h4>Complete your assessment</h4><p>You've basically done this — a few medical questions finalise it.</p></div></div>
+        <div class="step-card"><div class="step-num">2</div><div><h4>A prescriber reviews you</h4><p>A licensed prescriber confirms the treatment is appropriate and safe for you.</p></div></div>
+        <div class="step-card"><div class="step-num">3</div><div><h4>We compound &amp; ship free</h4><p>Your GelRx formula is prepared and delivered in discreet, plain packaging.</p></div></div>
+        <div class="step-card"><div class="step-num">4</div><div><h4>Apply daily &amp; track</h4><p>One simple topical step a day. Adjust or cancel anytime — no lock-in.</p></div></div>
+      </div>
+    </section>
+
+    <!-- guarantee -->
+    <section class="sec">
+      <div class="guarantee">
+        <div class="gi"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5l-8-3Z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Backed by the XYON commitment</h3>
+        <p>Only pay if a prescriber approves your plan. Cancel anytime. Dedicated support from our care team whenever you need it.</p>
+      </div>
+    </section>
+
+    <!-- reviews -->
+    <section class="sec">
+      <div class="sec-eyebrow">2,400+ verified men</div>
+      <h3>Why they switched to XYON</h3>
+      <div style="margin-top:22px">
+        <div class="review">
+          <div class="stars">★★★★★</div>
+          <p>“I tried oral finasteride first and didn't love how it made me feel. The topical gel gave me the results without the worry. Crown's filled right back in.”</p>
+          <div class="who"><span class="av">D</span><b>David&nbsp;M.</b><span class="vf"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Verified</span></div>
+        </div>
+        <div class="review">
+          <div class="stars">★★★★★</div>
+          <p>“Dead simple. Quiz, prescriber sorted it, shows up at my door. My hairline's the strongest it's been in years.”</p>
+          <div class="who"><span class="av">T</span><b>Tom&nbsp;R.</b><span class="vf"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Verified</span></div>
+        </div>
+        <div class="review">
+          <div class="stars">★★★★★</div>
+          <p>“Sceptical at first. Three months in the shedding stopped, six months in people started noticing. Genuinely glad I took the quiz.”</p>
+          <div class="who"><span class="av">A</span><b>Aaron&nbsp;K.</b><span class="vf"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg> Verified</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="sec">
+      <div class="sec-eyebrow">Good to know</div>
+      <h3>Questions men ask first</h3>
+      <div style="margin-top:18px" id="faq">
+        <div class="faq-item"><button class="faq-q">Is this just regular finasteride? <span class="pm">+</span></button><div class="faq-a"><p>It uses the same proven active ingredients, but delivered <b>topically</b> through XYON's SiloxysSystem™ GelRx — applied to the scalp rather than swallowed as a daily pill, which is designed to reduce systemic side-effect risk.</p></div></div>
+        <div class="faq-item"><button class="faq-q">How quickly will I see results? <span class="pm">+</span></button><div class="faq-a"><p>Most men see shedding slow within 1–3 months and visible regrowth around 3–6 months. Hair loss treatment rewards consistency — the men who stick with it see the best results.</p></div></div>
+        <div class="faq-item"><button class="faq-q">Do I need to see a doctor in person? <span class="pm">+</span></button><div class="faq-a"><p>No. A licensed prescriber reviews your online assessment and approves treatment if it's appropriate for you — all from home.</p></div></div>
+        <div class="faq-item"><button class="faq-q">Is it discreet, and can I cancel? <span class="pm">+</span></button><div class="faq-a"><p>Yes. Everything arrives in plain, discreet packaging with free delivery, and you can pause or cancel anytime — there's no lock-in.</p></div></div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <div class="logo">XY<b>O</b>N</div>
+      <p>XYON Health — The new standard in treating hair loss. Topical finasteride &amp; minoxidil with proprietary SiloxysSystem™ GelRx delivery.</p>
+      <p class="disclaimer">This assessment provides a treatment recommendation based on your answers. It is not a diagnosis. All prescription treatments require approval by a licensed prescriber. Results vary between individuals. Read all product information and consult the provided guidance before use.</p>
+      <p class="legal">© 2026 XYON Health. All rights reserved. · <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+    </div>
+  </section>
+</main>
+
+<!-- ============================================================
+     STICKY CTA (result only)
+============================================================ -->
+<div class="sticky-cta" id="stickyCta">
+  <div class="sticky-cta-inner">
+    <div class="sticky-mini"><span>Your match · <b>Topical Fin &amp; Min GelRx</b></span><span><b>£119</b>/mo · 20% off</span></div>
+    <button class="btn gold" data-evt="InitiateCheckout" data-cta>
+      Claim my treatment plan
+      <svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   XYON QUIZ ENGINE
+   - 3 auto-advancing questions
+   - manufactured "analysis" → personalised result
+   - every step fires Meta Pixel + TikTok Pixel events
+============================================================ */
+
+// >>> CONFIG: set your real destination + pixel IDs here <<<
+const CONFIG = {
+  checkoutUrl: "https://www.xyonhealth.com/products/topical-finasteride-minoxidil", // where "Claim my plan" sends the lead
+  metaPixelId: "",   // e.g. "1234567890"  -> enables Meta Pixel
+  tiktokPixelId: ""  // e.g. "CABCD1234"   -> enables TikTok Pixel
+};
+
+/* ---------- pixel bootstrap (only fires if IDs are set) ---------- */
+function track(event, params){
+  params = params || {};
+  try{ if(window.fbq) fbq('track', event, params); }catch(e){}
+  try{ if(window.ttq){ const map={ViewContent:'ViewContent',StartQuiz:'ClickButton',Lead:'CompleteRegistration',InitiateCheckout:'InitiateCheckout'}; ttq.track(map[event]||event, params);} }catch(e){}
+  // dataLayer for GTM, plus console for debugging
+  (window.dataLayer=window.dataLayer||[]).push(Object.assign({event:'xyon_'+event}, params));
+  console.log('[XYON track]', event, params);
+}
+(function initPixels(){
+  if(CONFIG.metaPixelId){
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', CONFIG.metaPixelId); fbq('track','PageView');
+  }
+  if(CONFIG.tiktokPixelId){
+    !function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'];ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i='https://analytics.tiktok.com/i18n/pixel/events.js';ttq._i=ttq._i||{};ttq._i[e]=[];ttq._i[e]._u=i;ttq._t=ttq._t||{};ttq._t[e]=+new Date;ttq._o=ttq._o||{};ttq._o[e]=n||{};n=d.createElement('script');n.type='text/javascript';n.async=!0;n.src=i+'?sdkid='+e+'&lib='+t;e=d.getElementsByTagName('script')[0];e.parentNode.insertBefore(n,e)};ttq.load(CONFIG.tiktokPixelId);ttq.page()}(window,document,'ttq');
+  }
+})();
+
+/* ---------- quiz definition ---------- */
+const QUESTIONS = [
+  {
+    id:'area',
+    title:"Where are you noticing it most?",
+    help:"Pick the area that bothers you most right now.",
+    options:[
+      {v:'hairline', emoji:'🔱', label:'Receding hairline',   desc:'Corners / temples creeping back'},
+      {v:'crown',    emoji:'🎯', label:'Thinning on top',      desc:'Crown or vertex getting sparse'},
+      {v:'diffuse',  emoji:'🌧️', label:'Overall thinning',     desc:'Shedding & less density all over'},
+      {v:'all',      emoji:'🪞', label:'A bit of everything',  desc:'Hairline and top both going'}
+    ]
+  },
+  {
+    id:'stage',
+    title:"How long has it been happening?",
+    help:"This helps us gauge how aggressively to treat it.",
+    options:[
+      {v:'early', emoji:'🌱', label:'Just starting',  desc:'Noticed it in the last year'},
+      {v:'mid',   emoji:'📉', label:'1–3 years',      desc:'Slowly getting worse'},
+      {v:'late',  emoji:'⏳', label:'3+ years',       desc:'Been going a while now'},
+      {v:'unsure',emoji:'🤔', label:'Not sure',       desc:'Hard to say exactly'}
+    ]
+  },
+  {
+    id:'goal',
+    title:"What's your #1 goal?",
+    help:"Be honest — your plan is built around this.",
+    options:[
+      {v:'stop',  emoji:'🛡️', label:'Stop losing more',       desc:'Protect what I still have'},
+      {v:'regrow',emoji:'🌿', label:'Regrow what I lost',      desc:'Get density back'},
+      {v:'both',  emoji:'🔥', label:'Both — stop AND regrow',  desc:'Go all in on results'},
+      {v:'fast',  emoji:'⚡', label:'Fix it as fast as I can', desc:'I want to see change soon'}
+    ]
+  }
+];
+
+/* ---------- state ---------- */
+const state = { step:0, answers:{} };
+const $ = s => document.querySelector(s);
+const screens = {
+  intro:$('#screen-intro'), quiz:$('#screen-quiz'),
+  analyzing:$('#screen-analyzing'), result:$('#screen-result')
+};
+const TOTAL = QUESTIONS.length;
+
+function show(name){
+  Object.values(screens).forEach(s=>s.classList.remove('active'));
+  screens[name].classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'in window?'instant':'auto'});
+}
+function setProgress(pct){ $('#progressBar').style.width = pct+'%'; }
+
+/* ---------- intro ---------- */
+$('#startBtn').addEventListener('click', ()=>{
+  track('StartQuiz', {content_name:'hair-quiz'});
+  state.step = 0;
+  $('#topTag').textContent = 'Hair Assessment';
+  renderQuestion();
+  show('quiz');
+});
+
+/* ---------- render a question ---------- */
+function renderQuestion(){
+  const q = QUESTIONS[state.step];
+  $('#stepCount').textContent = `Question ${state.step+1} of ${TOTAL}`;
+  $('#qTitle').textContent = q.title;
+  $('#qHelp').textContent = q.help;
+  $('#backBtn').disabled = state.step === 0;
+  setProgress( Math.round((state.step/(TOTAL))*100) + 6 );
+
+  const box = $('#options');
+  box.innerHTML = '';
+  q.options.forEach(opt=>{
+    const selected = state.answers[q.id] === opt.v;
+    const el = document.createElement('button');
+    el.className = 'option' + (selected?' selected':'');
+    el.innerHTML = `
+      <span class="emoji">${opt.emoji}</span>
+      <span class="otxt"><span class="olabel">${opt.label}</span><span class="odesc">${opt.desc}</span></span>
+      <span class="check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>`;
+    el.addEventListener('click', ()=>choose(q, opt, el));
+    box.appendChild(el);
+  });
+}
+
+function choose(q, opt, el){
+  state.answers[q.id] = opt.v;
+  document.querySelectorAll('#options .option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  track('QuizAnswer', {step:state.step+1, question:q.id, answer:opt.v});
+
+  // brief beat so the selection is felt, then advance
+  setTimeout(()=>{
+    if(state.step < TOTAL-1){
+      state.step++;
+      screens.quiz.classList.remove('active');
+      void screens.quiz.offsetWidth;            // restart entry animation
+      renderQuestion();
+      screens.quiz.classList.add('active');
+    } else {
+      track('Lead', {content_name:'hair-quiz-complete'});  // quiz finished = lead
+      runAnalysis();
+    }
+  }, 280);
+}
+
+/* ---------- back ---------- */
+$('#backBtn').addEventListener('click', ()=>{
+  if(state.step>0){ state.step--; renderQuestion(); }
+});
+
+/* ---------- analysing animation ---------- */
+function runAnalysis(){
+  show('analyzing');
+  $('#topTag').textContent = 'Analysing…';
+  setProgress(100);
+  const ring = $('#ring'), pctEl = $('#pct');
+  const CIRC = 351.8;
+  const steps = document.querySelectorAll('#analyzeSteps li');
+  let p = 0;
+  const titles = ['Building your hair profile…','Reviewing your stage…','Matching to your goal…','Finalising your treatment…'];
+  const tick = setInterval(()=>{
+    p += Math.random()*7 + 3;
+    if(p>=100) p=100;
+    pctEl.textContent = Math.round(p)+'%';
+    ring.style.strokeDashoffset = CIRC*(1-p/100);
+    const idx = Math.min(3, Math.floor(p/25));
+    $('#analyzeTitle').textContent = titles[idx];
+    steps.forEach((li,i)=>{ if(i < Math.floor(p/25)) li.classList.add('done'); });
+    if(p>=100){
+      clearInterval(tick);
+      steps.forEach(li=>li.classList.add('done'));
+      setTimeout(showResult, 650);
+    }
+  }, 240);
+}
+
+/* ---------- personalised result copy ---------- */
+function buildReason(){
+  const a = state.answers;
+  const areaTxt = {
+    hairline:'a receding hairline', crown:'thinning on top',
+    diffuse:'overall thinning and shedding', all:'loss across both your hairline and crown'
+  }[a.area] || 'your pattern of loss';
+  const stageTxt = {
+    early:"caught it early", mid:"about 1–3 years in",
+    late:"been dealing with it for 3+ years", unsure:"noticing it progress"
+  }[a.stage] || 'noticing it progress';
+  const goalTxt = {
+    stop:'want to <b>stop further loss</b>', regrow:'want to <b>regrow density</b>',
+    both:'want to <b>both stop loss and regrow</b>', fast:'want <b>visible change as fast as possible</b>'
+  }[a.goal] || 'want real results';
+  return `Because you're seeing <b>${areaTxt}</b>, you've ${stageTxt}, and you ${goalTxt}, your assessment points to a <b>dual-action topical</b> — a DHT blocker to halt loss <i>and</i> a stimulator to drive regrowth, in a single daily step.`;
+}
+
+function showResult(){
+  $('#because').innerHTML = buildReason();
+  show('result');
+  $('#topTag').textContent = 'Your Match';
+  setProgress(100);
+  track('ViewContent', {content_name:'result-page', content_type:'product', value:119, currency:'GBP'});
+  // reveal sticky CTA after the user has the result in view
+  setTimeout(()=> $('#stickyCta').classList.add('show'), 900);
+}
+
+/* ---------- CTA clicks ---------- */
+document.querySelectorAll('[data-cta]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    track('InitiateCheckout', {content_name:'topical-fin-min', value:119, currency:'GBP', answers:state.answers});
+    const q = new URLSearchParams(state.answers).toString();
+    window.location.href = CONFIG.checkoutUrl + (CONFIG.checkoutUrl.includes('?')?'&':'?') + q;
+  });
+});
+
+/* ---------- FAQ accordion ---------- */
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click', ()=>{
+    const item = q.closest('.faq-item');
+    const open = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>{ i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight=null; });
+    if(!open){ item.classList.add('open'); const a=item.querySelector('.faq-a'); a.style.maxHeight=a.scrollHeight+'px'; }
+  });
+});
+
+/* ---------- fire ViewContent on first paint ---------- */
+track('PageView', {page:'quiz-intro'});
+</script>
+</body>
+</html>
