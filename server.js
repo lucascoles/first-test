@@ -17,6 +17,7 @@ import { benchmarkAd } from './analysis/benchmark.js';
 import { suggestForAd } from './analysis/suggestions.js';
 import { runFullSync } from './scheduler.js';
 import { startScheduler } from './scheduler.js';
+import { scanReddit } from './scanners/reddit-listen.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
@@ -278,13 +279,121 @@ app.get('/api/sync', async (_req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// Organic Reddit Listening (read-only social listening)
+// ---------------------------------------------------------------------------
+
+/** Serve the Reddit Radar dashboard page. */
+app.get('/reddit', (_req, res) => {
+  res.sendFile(join(__dirname, 'reddit-radar.html'));
+});
+
+/**
+ * GET /api/reddit/mentions
+ * Flagged threads & comments for manual review.
+ * Query params:
+ *   ?status=new|reviewed|dismissed|engaged   (default: excludes 'dismissed')
+ *   ?intent=sourcing|comparison|experience|brand|general
+ *   ?subreddit=tressless
+ *   ?kind=post|comment
+ *   ?min=<relevance>   (default 0)
+ *   ?limit=<n>         (default 200)
+ */
+app.get('/api/reddit/mentions', (req, res) => {
+  const { status, intent, subreddit, kind } = req.query;
+  const min = parseInt(req.query.min, 10) || 0;
+  const limit = Math.min(parseInt(req.query.limit, 10) || 200, 500);
+
+  let where = 'relevance >= ?';
+  const params = [min];
+
+  if (status) { where += ' AND status = ?'; params.push(status); }
+  else { where += " AND status != 'dismissed'"; }
+  if (intent) { where += ' AND intent = ?'; params.push(intent); }
+  if (subreddit) { where += ' AND subreddit = ?'; params.push(subreddit); }
+  if (kind) { where += ' AND kind = ?'; params.push(kind); }
+
+  const rows = db.prepare(`
+    SELECT * FROM reddit_mentions
+    WHERE ${where}
+    ORDER BY relevance DESC, created_utc DESC
+    LIMIT ?
+  `).all(...params, limit);
+
+  const mentions = rows.map((r) => ({
+    ...r,
+    matched_terms: JSON.parse(r.matched_terms || '[]'),
+  }));
+
+  res.json(mentions);
+});
+
+/**
+ * GET /api/reddit/summary
+ * Counts for the dashboard header + last scan info.
+ */
+app.get('/api/reddit/summary', (_req, res) => {
+  const byIntent = db.prepare(`
+    SELECT intent, COUNT(*) as count FROM reddit_mentions
+    WHERE status != 'dismissed' GROUP BY intent
+  `).all();
+
+  const newCount = db.prepare(
+    "SELECT COUNT(*) as c FROM reddit_mentions WHERE status = 'new'"
+  ).get().c;
+
+  const sourcingNew = db.prepare(
+    "SELECT COUNT(*) as c FROM reddit_mentions WHERE status = 'new' AND intent = 'sourcing'"
+  ).get().c;
+
+  const lastScan = db.prepare(
+    'SELECT * FROM reddit_scan_log ORDER BY id DESC LIMIT 1'
+  ).get();
+
+  res.json({ newCount, sourcingNew, byIntent, lastScan: lastScan || null });
+});
+
+/**
+ * POST /api/reddit/mentions/:id/status
+ * Body: { status: 'reviewed' | 'dismissed' | 'engaged' | 'new' }
+ * Lets you triage the queue without touching Reddit itself.
+ */
+app.post('/api/reddit/mentions/:id/status', (req, res) => {
+  const { status } = req.body || {};
+  const allowed = ['new', 'reviewed', 'dismissed', 'engaged'];
+  if (!allowed.includes(status)) {
+    return res.status(400).json({ error: `status must be one of ${allowed.join(', ')}` });
+  }
+  const info = db.prepare('UPDATE reddit_mentions SET status = ? WHERE id = ?')
+    .run(status, req.params.id);
+  if (info.changes === 0) return res.status(404).json({ error: 'Mention not found' });
+  res.json({ status: 'ok' });
+});
+
+/**
+ * POST /api/reddit/scan  (also GET for easy curl testing)
+ * Manually trigger a Reddit listening pass.
+ */
+async function handleRedditScan(_req, res) {
+  try {
+    const result = await scanReddit(db);
+    res.json({ status: 'ok', ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+app.post('/api/reddit/scan', handleRedditScan);
+app.get('/api/reddit/scan', handleRedditScan);
+
+// ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
 app.listen(PORT, () => {
   console.log(`\n  XYON Command Centre running at http://localhost:${PORT}`);
-  console.log(`  Dashboard:  http://localhost:${PORT}`);
-  console.log(`  API:        http://localhost:${PORT}/api/summary`);
-  console.log(`  Manual sync: curl -X POST http://localhost:${PORT}/api/sync\n`);
+  console.log(`  Dashboard:    http://localhost:${PORT}`);
+  console.log(`  Reddit Radar: http://localhost:${PORT}/reddit`);
+  console.log(`  API:          http://localhost:${PORT}/api/summary`);
+  console.log(`  Manual sync:  curl -X POST http://localhost:${PORT}/api/sync`);
+  console.log(`  Reddit scan:  curl -X POST http://localhost:${PORT}/api/reddit/scan\n`);
 });
 
 // Start the daily scheduler

@@ -14,6 +14,7 @@ import { generateSuggestions } from './analysis/suggestions.js';
 import { fetchFbAdLibrary } from './inspiration/fb-ad-library.js';
 import { fetchTikTokCreative } from './inspiration/tiktok-creative.js';
 import { fetchRedditInspiration } from './inspiration/reddit-ads.js';
+import { scanReddit } from './scanners/reddit-listen.js';
 
 /**
  * Run the full daily sync pipeline.
@@ -61,5 +62,16 @@ export function startScheduler(db) {
     await runFullSync(db);
   });
 
+  // Organic Reddit listening — every 2 days at 8:00 AM ("every few days").
+  cron.schedule('0 8 */2 * *', async () => {
+    console.log('\n--- Reddit Listening Scan ---');
+    try {
+      await scanReddit(db);
+    } catch (err) {
+      console.error('[reddit-listen] Scan error:', err.message);
+    }
+  });
+
   console.log('[scheduler] Daily sync scheduled for 6:00 AM.');
+  console.log('[scheduler] Reddit listening scan scheduled every 2 days at 8:00 AM.');
 }

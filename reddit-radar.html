@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XYON — Reddit Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0f;--bg1:#141418;--bg2:#1a1a20;--bg3:#222228;
+  --border:#2a2a35;--text:#e8e8f0;--text2:#8888a0;--text3:#3a3a50;
+  --gold:#c9a96e;--green:#6fbd3a;--blue:#4a9eff;--coral:#e05c3a;
+  --purple:#9b6fd4;--amber:#e09020;--teal:#3ab8a0;
+  --hh:52px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:'Space Grotesk',sans-serif;font-size:13px;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--bg1);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;z-index:100}
+.hdr-logo{font-size:15px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
+.hdr-logo span{color:var(--gold)}
+.hdr-r{display:flex;align-items:center;gap:12px;margin-left:auto}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);
+  font-family:'IBM Plex Mono',monospace}
+.sync-btn{display:flex;align-items:center;gap:5px;padding:6px 14px;background:var(--bg3);
+  border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;
+  font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all .2s}
+.sync-btn:hover{border-color:var(--gold);color:var(--gold)}
+.sync-btn.syncing{color:var(--amber);border-color:var(--amber);pointer-events:none}
+.back{font-size:12px;color:var(--text2);text-decoration:none}
+.back:hover{color:var(--text)}
+
+.main{padding-top:var(--hh)}
+.cnt{max-width:1100px;margin:0 auto;padding:18px 20px 60px}
+
+.banner{background:linear-gradient(90deg,rgba(201,169,110,.08),transparent);
+  border:1px solid var(--border);border-left:2px solid var(--gold);border-radius:8px;
+  padding:11px 14px;margin-bottom:16px;font-size:11.5px;color:var(--text2);line-height:1.5}
+.banner b{color:var(--gold);font-weight:600}
+
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:13px 14px;position:relative;overflow:hidden}
+.kpi-acc{position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-lbl{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);margin-bottom:6px}
+.kpi-val{font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;letter-spacing:-.02em}
+.kpi-sub{font-size:10px;color:var(--text2);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center}
+.filters select{background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  font-family:inherit;font-size:11.5px;padding:6px 9px;border-radius:6px;cursor:pointer}
+.filters label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-left:6px}
+
+.list{display:flex;flex-direction:column;gap:9px}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:13px 14px;transition:border-color .15s}
+.card:hover{border-color:var(--text3)}
+.card.dismissed{opacity:.45}
+.card-top{display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+.rel{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;padding:2px 8px;border-radius:5px;min-width:34px;text-align:center}
+.tag{font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:5px;border:1px solid var(--border)}
+.tag.sourcing{color:var(--green);border-color:rgba(111,189,58,.4)}
+.tag.brand{color:var(--gold);border-color:rgba(201,169,110,.4)}
+.tag.comparison{color:var(--blue);border-color:rgba(74,158,255,.4)}
+.tag.experience{color:var(--purple);border-color:rgba(155,111,212,.4)}
+.tag.general{color:var(--text2)}
+.tag.kind{color:var(--teal);border-color:rgba(58,184,160,.35)}
+.sub{font-size:11.5px;color:var(--text2);font-family:'IBM Plex Mono',monospace}
+.meta{margin-left:auto;font-size:10.5px;color:var(--text2);font-family:'IBM Plex Mono',monospace;display:flex;gap:10px}
+.title{font-size:13.5px;font-weight:600;line-height:1.35;margin-bottom:4px}
+.body{font-size:12px;color:var(--text2);line-height:1.5;max-height:60px;overflow:hidden;margin-bottom:8px}
+.terms{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.term{font-size:9.5px;font-family:'IBM Plex Mono',monospace;color:var(--amber);background:rgba(224,144,32,.08);padding:1px 6px;border-radius:4px}
+.actions{display:flex;gap:6px;align-items:center}
+.btn{font-size:11px;font-family:inherit;padding:5px 11px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text);transition:all .15s}
+.btn:hover{border-color:var(--text3)}
+.btn.go{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn.go:hover{filter:brightness(1.1)}
+.btn.on{border-color:var(--green);color:var(--green)}
+.spacer{flex:1}
+.empty{text-align:center;color:var(--text2);padding:50px 20px;font-size:13px}
+.empty b{color:var(--text);display:block;margin-bottom:6px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-logo">XYON <span>// REDDIT RADAR</span></div>
+  <a class="back" href="/">← Command Centre</a>
+  <div class="hdr-r">
+    <span class="live" id="lastScan">last scan: —</span>
+    <button class="sync-btn" id="scanBtn">⟳ Scan now</button>
+  </div>
+</div>
+
+<div class="main"><div class="cnt">
+
+  <div class="banner">
+    <b>Listening only.</b> This board flags public Reddit threads &amp; comments worth a look — it never posts for you.
+    When you reply, do it as <b>yourself</b> and stay within each subreddit's rules: only mention XYON where it
+    genuinely answers the question, and disclose your connection if you have one. Manual, helpful, honest engagement
+    is what survives in these communities.
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-acc" style="background:var(--green)"></div>
+      <div class="kpi-lbl">New — sourcing</div><div class="kpi-val" id="kSourcing">—</div>
+      <div class="kpi-sub">people asking where to buy</div></div>
+    <div class="kpi"><div class="kpi-acc" style="background:var(--blue)"></div>
+      <div class="kpi-lbl">New total</div><div class="kpi-val" id="kNew">—</div>
+      <div class="kpi-sub">unreviewed mentions</div></div>
+    <div class="kpi"><div class="kpi-acc" style="background:var(--gold)"></div>
+      <div class="kpi-lbl">Brand mentions</div><div class="kpi-val" id="kBrand">—</div>
+      <div class="kpi-sub">threads naming XYON</div></div>
+    <div class="kpi"><div class="kpi-acc" style="background:var(--purple)"></div>
+      <div class="kpi-lbl">Showing</div><div class="kpi-val" id="kShown">—</div>
+      <div class="kpi-sub">after filters</div></div>
+  </div>
+
+  <div class="filters">
+    <select id="fStatus">
+      <option value="">Active (not dismissed)</option>
+      <option value="new">New only</option>
+      <option value="reviewed">Reviewed</option>
+      <option value="engaged">Engaged</option>
+      <option value="dismissed">Dismissed</option>
+    </select>
+    <select id="fIntent">
+      <option value="">All intents</option>
+      <option value="sourcing">Sourcing</option>
+      <option value="brand">Brand (XYON)</option>
+      <option value="comparison">Comparison</option>
+      <option value="experience">Experience</option>
+      <option value="general">General</option>
+    </select>
+    <select id="fSub">
+      <option value="">All subreddits</option>
+      <option value="tressless">r/tressless</option>
+      <option value="Hairloss">r/Hairloss</option>
+      <option value="HaircareScience">r/HaircareScience</option>
+      <option value="FinasterideSyndrome">r/FinasterideSyndrome</option>
+    </select>
+    <select id="fKind">
+      <option value="">Posts + comments</option>
+      <option value="post">Posts</option>
+      <option value="comment">Comments</option>
+    </select>
+    <label>min score</label>
+    <select id="fMin">
+      <option value="0">0</option>
+      <option value="40">40</option>
+      <option value="55" selected>55</option>
+      <option value="70">70</option>
+    </select>
+  </div>
+
+  <div class="list" id="list"></div>
+</div></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const relColor = (r) => r >= 70 ? 'var(--green)' : r >= 50 ? 'var(--amber)' : 'var(--text2)';
+const relBg = (r) => r >= 70 ? 'rgba(111,189,58,.12)' : r >= 50 ? 'rgba(224,144,32,.12)' : 'var(--bg3)';
+const ago = (utc) => {
+  const s = Date.now()/1000 - utc;
+  if (s < 3600) return Math.round(s/60) + 'm';
+  if (s < 86400) return Math.round(s/3600) + 'h';
+  return Math.round(s/86400) + 'd';
+};
+const esc = (t) => (t||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function loadSummary(){
+  try{
+    const s = await fetch('/api/reddit/summary').then(r=>r.json());
+    $('kNew').textContent = s.newCount ?? 0;
+    $('kSourcing').textContent = s.sourcingNew ?? 0;
+    const brand = (s.byIntent||[]).find(i=>i.intent==='brand');
+    $('kBrand').textContent = brand ? brand.count : 0;
+    if (s.lastScan){
+      const d = new Date(s.lastScan.ran_at);
+      $('lastScan').textContent = `last scan: ${d.toLocaleString()} · +${s.lastScan.new_mentions} new`;
+    } else { $('lastScan').textContent = 'last scan: never — hit Scan now'; }
+  }catch(e){ $('lastScan').textContent = 'last scan: (api offline)'; }
+}
+
+async function loadList(){
+  const p = new URLSearchParams();
+  if ($('fStatus').value) p.set('status', $('fStatus').value);
+  if ($('fIntent').value) p.set('intent', $('fIntent').value);
+  if ($('fSub').value) p.set('subreddit', $('fSub').value);
+  if ($('fKind').value) p.set('kind', $('fKind').value);
+  p.set('min', $('fMin').value);
+
+  let rows = [];
+  try { rows = await fetch('/api/reddit/mentions?' + p).then(r=>r.json()); }
+  catch(e){ /* api offline */ }
+
+  $('kShown').textContent = rows.length;
+  const list = $('list');
+
+  if (!rows.length){
+    list.innerHTML = `<div class="empty"><b>Nothing flagged yet</b>
+      Run a scan, or loosen the filters. New conversations show up here automatically every couple of days.</div>`;
+    return;
+  }
+
+  list.innerHTML = rows.map(m => {
+    const terms = (m.matched_terms||[]).map(t=>`<span class="term">${esc(t)}</span>`).join('');
+    const headline = m.kind === 'comment'
+      ? (m.title ? `re: ${esc(m.title)}` : 'comment')
+      : esc(m.title || '(no title)');
+    return `<div class="card" data-id="${esc(m.id)}">
+      <div class="card-top">
+        <span class="rel" style="color:${relColor(m.relevance)};background:${relBg(m.relevance)}">${m.relevance}</span>
+        <span class="tag ${m.intent}">${m.intent}</span>
+        <span class="tag kind">${m.kind}</span>
+        <span class="sub">r/${esc(m.subreddit)}</span>
+        <span class="meta"><span>▲ ${m.score}</span>${m.kind==='post'?`<span>💬 ${m.num_comments}</span>`:''}<span>${ago(m.created_utc)} ago</span></span>
+      </div>
+      <div class="title">${headline}</div>
+      ${m.body ? `<div class="body">${esc(m.body.slice(0,300))}</div>` : ''}
+      <div class="terms">${terms}</div>
+      <div class="actions">
+        <a class="btn go" href="${esc(m.permalink)}" target="_blank" rel="noopener">Open on Reddit ↗</a>
+        <div class="spacer"></div>
+        <button class="btn ${m.status==='reviewed'?'on':''}" data-act="reviewed">Reviewed</button>
+        <button class="btn ${m.status==='engaged'?'on':''}" data-act="engaged">I replied</button>
+        <button class="btn" data-act="dismissed">Dismiss</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.btn[data-act]').forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.closest('.card').dataset.id;
+      await fetch(`/api/reddit/mentions/${encodeURIComponent(id)}/status`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ status: btn.dataset.act })
+      });
+      loadList(); loadSummary();
+    };
+  });
+}
+
+$('scanBtn').onclick = async () => {
+  const b = $('scanBtn');
+  b.classList.add('syncing'); b.textContent = '⟳ Scanning…';
+  try { await fetch('/api/reddit/scan', { method:'POST' }); }
+  finally {
+    b.classList.remove('syncing'); b.textContent = '⟳ Scan now';
+    loadSummary(); loadList();
+  }
+};
+
+['fStatus','fIntent','fSub','fKind','fMin'].forEach(id => $(id).onchange = loadList);
+
+loadSummary();
+loadList();
+</script>
+</body>
+</html>
