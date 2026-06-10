@@ -82,7 +82,15 @@ a{color:inherit}
 .btn.go{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
 .btn.go:hover{filter:brightness(1.1)}
 .btn.on{border-color:var(--green);color:var(--green)}
+.btn.draft{border-color:rgba(201,169,110,.5);color:var(--gold)}
+.btn.draft:hover{background:rgba(201,169,110,.08)}
 .spacer{flex:1}
+.draft-box{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);padding:10px;display:none}
+.draft-box.show{display:block}
+.draft-box .dlbl{font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.draft-box textarea{width:100%;min-height:90px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit;font-size:12px;line-height:1.5;padding:9px;resize:vertical}
+.draft-box .drow{display:flex;gap:6px;margin-top:7px;align-items:center}
+.draft-box .dnote{font-size:10px;color:var(--text2);margin-left:auto}
 .empty{text-align:center;color:var(--text2);padding:50px 20px;font-size:13px}
 .empty b{color:var(--text);display:block;margin-bottom:6px;font-size:14px}
 </style>
@@ -226,10 +234,20 @@ async function loadList(){
       <div class="terms">${terms}</div>
       <div class="actions">
         <a class="btn go" href="${esc(m.permalink)}" target="_blank" rel="noopener">Open on Reddit ↗</a>
+        <button class="btn draft" data-draft>${m.draft_text?'Edit draft':'✎ Draft reply'}</button>
         <div class="spacer"></div>
         <button class="btn ${m.status==='reviewed'?'on':''}" data-act="reviewed">Reviewed</button>
         <button class="btn ${m.status==='engaged'?'on':''}" data-act="engaged">I replied</button>
         <button class="btn" data-act="dismissed">Dismiss</button>
+      </div>
+      <div class="draft-box ${m.draft_text?'show':''}">
+        <div class="dlbl">Disclosed draft — review &amp; edit before posting <span class="dnote">${m.draft_model?('via '+esc(m.draft_model)):''}</span></div>
+        <textarea spellcheck="true">${esc(m.draft_text||'')}</textarea>
+        <div class="drow">
+          <button class="btn" data-copy>Copy</button>
+          <button class="btn" data-regen>${m.draft_text?'Regenerate':'Generate'}</button>
+          <span class="dnote">you post it yourself, as you — keep it within the sub's rules</span>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -244,6 +262,57 @@ async function loadList(){
       loadList(); loadSummary();
     };
   });
+
+  // Toggle draft panel; auto-generate on first open if empty.
+  list.querySelectorAll('.btn[data-draft]').forEach(btn => {
+    btn.onclick = () => {
+      const card = btn.closest('.card');
+      const box = card.querySelector('.draft-box');
+      box.classList.toggle('show');
+      const ta = box.querySelector('textarea');
+      if (box.classList.contains('show') && !ta.value.trim()) {
+        generateDraft(card);
+      }
+    };
+  });
+
+  list.querySelectorAll('.btn[data-regen]').forEach(btn => {
+    btn.onclick = () => generateDraft(btn.closest('.card'));
+  });
+
+  list.querySelectorAll('.btn[data-copy]').forEach(btn => {
+    btn.onclick = async () => {
+      const ta = btn.closest('.draft-box').querySelector('textarea');
+      try { await navigator.clipboard.writeText(ta.value); btn.textContent = 'Copied ✓'; }
+      catch { ta.select(); document.execCommand('copy'); btn.textContent = 'Copied ✓'; }
+      setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+    };
+  });
+}
+
+async function generateDraft(card){
+  const id = card.dataset.id;
+  const box = card.querySelector('.draft-box');
+  const ta = box.querySelector('textarea');
+  const regen = box.querySelector('[data-regen]');
+  const prev = regen.textContent;
+  regen.textContent = 'Writing…'; regen.style.pointerEvents = 'none';
+  ta.placeholder = 'Generating a disclosed draft…';
+  try {
+    const r = await fetch(`/api/reddit/mentions/${encodeURIComponent(id)}/draft`, { method:'POST' });
+    const data = await r.json();
+    if (r.ok) {
+      ta.value = data.draft;
+      box.querySelector('.dnote').textContent = data.model ? ('via ' + data.model) : '';
+    } else {
+      ta.placeholder = data.error || 'Draft failed.';
+    }
+  } catch (e) {
+    ta.placeholder = 'Draft request failed (api offline?).';
+  } finally {
+    regen.textContent = prev === 'Writing…' ? 'Regenerate' : prev;
+    regen.style.pointerEvents = '';
+  }
 }
 
 $('scanBtn').onclick = async () => {

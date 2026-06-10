@@ -9,6 +9,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "@fal-ai/client": "^1.9.5",
     "axios": "^1.15.0",
     "better-sqlite3": "^12.8.0",

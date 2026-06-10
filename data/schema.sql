@@ -94,7 +94,10 @@ CREATE TABLE IF NOT EXISTS reddit_mentions (
   relevance     INTEGER,            -- 0-100 score (higher = more worth engaging)
   status        TEXT DEFAULT 'new', -- 'new' | 'reviewed' | 'dismissed' | 'engaged'
   first_seen    TEXT,               -- ISO timestamp we first stored it
-  last_seen     TEXT                -- ISO timestamp of most recent scan hit
+  last_seen     TEXT,               -- ISO timestamp of most recent scan hit
+  draft_text    TEXT,               -- AI-generated draft reply (human reviews before posting)
+  draft_model   TEXT,               -- model that produced the draft
+  draft_at      TEXT                -- ISO timestamp the draft was generated
 );
 
 CREATE INDEX IF NOT EXISTS idx_reddit_mentions_status    ON reddit_mentions(status);

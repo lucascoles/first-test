@@ -18,6 +18,7 @@ import { suggestForAd } from './analysis/suggestions.js';
 import { runFullSync } from './scheduler.js';
 import { startScheduler } from './scheduler.js';
 import { scanReddit } from './scanners/reddit-listen.js';
+import { draftReply } from './analysis/reddit-draft.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
@@ -33,6 +34,18 @@ db.pragma('foreign_keys = ON');
 // Run schema
 const schema = readFileSync(join(__dirname, 'data', 'schema.sql'), 'utf8');
 db.exec(schema);
+
+// Lightweight migrations for DBs created before newer columns existed.
+function ensureColumn(table, column, type) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+  }
+}
+for (const [col, type] of [['draft_text', 'TEXT'], ['draft_model', 'TEXT'], ['draft_at', 'TEXT']]) {
+  ensureColumn('reddit_mentions', col, type);
+}
+
 console.log('[db] Schema initialized at', dbPath);
 
 // ---------------------------------------------------------------------------
@@ -383,6 +396,29 @@ async function handleRedditScan(_req, res) {
 }
 app.post('/api/reddit/scan', handleRedditScan);
 app.get('/api/reddit/scan', handleRedditScan);
+
+/**
+ * POST /api/reddit/mentions/:id/draft
+ * Generate (or regenerate) a disclosed AI draft reply for a mention and store it.
+ * Returns { draft, model }. Never posts to Reddit.
+ */
+app.post('/api/reddit/mentions/:id/draft', async (req, res) => {
+  const row = db.prepare('SELECT * FROM reddit_mentions WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Mention not found' });
+
+  const mention = { ...row, matched_terms: JSON.parse(row.matched_terms || '[]') };
+  const result = await draftReply(mention);
+
+  if (!result.ok) return res.status(503).json({ error: result.reason });
+
+  db.prepare(`
+    UPDATE reddit_mentions
+    SET draft_text = ?, draft_model = ?, draft_at = ?
+    WHERE id = ?
+  `).run(result.draft, result.model, new Date().toISOString(), req.params.id);
+
+  res.json({ draft: result.draft, model: result.model });
+});
 
 // ---------------------------------------------------------------------------
 // Start
