@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "generate": "node index.js",
+    "setup": "node setup.js",
     "start": "node server.js"
   },
   "dependencies": {
