@@ -21,6 +21,7 @@ import axios from 'axios';
 
 const AUTH_URL = 'https://www.reddit.com/api/v1/access_token';
 const API_BASE = 'https://oauth.reddit.com';
+const PUBLIC_BASE = 'https://www.reddit.com';
 
 // ---------------------------------------------------------------------------
 // Configuration — edit these to tune what the scanner watches.
@@ -97,7 +98,7 @@ async function getAppToken(clientId, clientSecret, userAgent) {
   return res.data.access_token;
 }
 
-function redditApi(token, userAgent) {
+function authedClient(token, userAgent) {
   return axios.create({
     baseURL: API_BASE,
     headers: { Authorization: `Bearer ${token}`, 'User-Agent': userAgent },
@@ -105,18 +106,30 @@ function redditApi(token, userAgent) {
   });
 }
 
+// Unauthenticated fallback: Reddit's public .json endpoints. No app or
+// credentials required — only a descriptive User-Agent — at the cost of lower
+// rate limits. Lets the scanner work when you can't create a Reddit app.
+function publicClient(userAgent) {
+  return axios.create({
+    baseURL: PUBLIC_BASE,
+    headers: { 'User-Agent': userAgent },
+    timeout: 20000,
+  });
+}
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/** GET a Reddit listing, tolerating transient errors / rate limits. */
-async function getListing(api, path, params) {
+/** GET a Reddit listing, tolerating transient errors / rate limits.
+ *  `suffix` is '.json' in unauthenticated mode, '' when using OAuth. */
+async function getListing(api, path, params, suffix = '') {
   try {
-    const res = await api.get(path, { params: { raw_json: 1, ...params } });
+    const res = await api.get(`${path}${suffix}`, { params: { raw_json: 1, ...params } });
     return res.data?.data?.children || [];
   } catch (err) {
     const code = err.response?.status;
     if (code === 429) {
-      console.warn(`[reddit-listen] Rate limited on ${path} — backing off 5s.`);
-      await sleep(5000);
+      console.warn(`[reddit-listen] Rate limited on ${path} — backing off 8s.`);
+      await sleep(8000);
       return [];
     }
     console.warn(`[reddit-listen] GET ${path} failed (${code || err.message}).`);
@@ -280,20 +293,33 @@ export async function scanReddit(db) {
   const clientId = process.env.REDDIT_SCAN_CLIENT_ID;
   const clientSecret = process.env.REDDIT_SCAN_SECRET;
   const userAgent = process.env.REDDIT_USER_AGENT || 'xyon-listener/1.0';
+  const hasCreds = Boolean(clientId && clientSecret);
 
-  if (!clientId || !clientSecret) {
-    console.log('[reddit-listen] Skipping — REDDIT_SCAN_CLIENT_ID / REDDIT_SCAN_SECRET not set.');
-    return { queries: 0, seen: 0, added: 0, skipped: true };
+  let api;
+  let suffix = '';   // appended to each path: '' for OAuth, '.json' for public
+  let pace = 700;    // ms between requests; authenticated ceiling is ~60/min
+  let mode = 'oauth';
+
+  if (hasCreds) {
+    let token;
+    try {
+      token = await getAppToken(clientId, clientSecret, userAgent);
+    } catch (err) {
+      console.error('[reddit-listen] Auth failed:', err.response?.status || err.message);
+      return { queries: 0, seen: 0, added: 0, skipped: true };
+    }
+    api = authedClient(token, userAgent);
+  } else {
+    // No app credentials — use Reddit's public JSON endpoints instead.
+    console.log('[reddit-listen] No app credentials — using unauthenticated public JSON (slower, lower rate limits).');
+    api = publicClient(userAgent);
+    suffix = '.json';
+    pace = 4000;      // far gentler to stay under unauthenticated limits
+    mode = 'public';
   }
 
-  let token;
-  try {
-    token = await getAppToken(clientId, clientSecret, userAgent);
-  } catch (err) {
-    console.error('[reddit-listen] Auth failed:', err.response?.status || err.message);
-    return { queries: 0, seen: 0, added: 0, skipped: true };
-  }
-  const api = redditApi(token, userAgent);
+  // Trim the query set in public mode to stay comfortably within rate limits.
+  const searchTerms = hasCreds ? SEARCH_TERMS : SEARCH_TERMS.slice(0, 4);
 
   let queries = 0;
   let seen = 0;
@@ -311,37 +337,37 @@ export async function scanReddit(db) {
 
   // 1) Per-subreddit keyword search (posts).
   for (const sub of SUBREDDITS) {
-    for (const term of SEARCH_TERMS) {
+    for (const term of searchTerms) {
       const children = await getListing(api, `/r/${sub}/search`, {
         q: term, restrict_sr: 1, sort: 'new', t: TIME_WINDOW, limit: PER_QUERY_LIMIT, type: 'link',
-      });
+      }, suffix);
       handleChildren(children, normalizePost);
       queries++;
-      await sleep(700); // stay well under 60 req/min
+      await sleep(pace);
     }
 
     // 2) Recent comments in the sub, keyword-filtered locally.
-    const comments = await getListing(api, `/r/${sub}/comments`, { limit: PER_QUERY_LIMIT });
+    const comments = await getListing(api, `/r/${sub}/comments`, { limit: PER_QUERY_LIMIT }, suffix);
     handleChildren(comments, normalizeComment);
     queries++;
-    await sleep(700);
+    await sleep(pace);
   }
 
   // 3) Site-wide search for the highest-signal terms (catches other subs).
   for (const term of ['topical dutasteride', 'topical finasteride', 'xyon']) {
     const children = await getListing(api, `/search`, {
       q: term, sort: 'new', t: TIME_WINDOW, limit: PER_QUERY_LIMIT, type: 'link',
-    });
+    }, suffix);
     handleChildren(children, normalizePost);
     queries++;
-    await sleep(700);
+    await sleep(pace);
   }
 
   db.prepare(`
     INSERT INTO reddit_scan_log (ran_at, queries_run, items_seen, new_mentions, notes)
     VALUES (?, ?, ?, ?, ?)
   `).run(new Date().toISOString(), queries, seen, added,
-        `subs=${SUBREDDITS.length} terms=${SEARCH_TERMS.length}`);
+        `mode=${mode} subs=${SUBREDDITS.length} terms=${searchTerms.length}`);
 
   console.log(`[reddit-listen] Scan complete — ${queries} queries, ${seen} matches, ${added} new.`);
   return { queries, seen, added };
