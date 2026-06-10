@@ -6,7 +6,7 @@
  */
 
 import 'dotenv/config';
-import { readFileSync } from 'fs';
+import { readFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
@@ -26,7 +26,10 @@ const PORT = process.env.PORT || 3000;
 // ---------------------------------------------------------------------------
 // Database setup
 // ---------------------------------------------------------------------------
-const dbPath = join(__dirname, 'data', 'xyon.db');
+// DB_PATH lets a hosted deploy point the SQLite file at a persistent disk
+// (e.g. /var/data/xyon.db) so scanned data survives redeploys.
+const dbPath = process.env.DB_PATH || join(__dirname, 'data', 'xyon.db');
+mkdirSync(dirname(dbPath), { recursive: true });
 const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');

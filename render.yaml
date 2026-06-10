@@ -1,0 +1,33 @@
+# Render Blueprint — deploys the Reddit Radar as an always-on web service
+# with a persistent disk for the SQLite database.
+#
+# Use: push this repo to GitHub, then in Render → "New +" → "Blueprint" →
+# pick this repo. Render reads this file, creates the service, and prompts you
+# for the secret values below (marked sync:false). Paste your keys once.
+services:
+  - type: web
+    name: xyon-reddit-radar
+    runtime: node
+    # A paid instance keeps the process alive so the every-2-days cron runs and
+    # supports the persistent disk. Render's free tier spins down when idle
+    # (which stops the scheduler) and has no disk — fine for a quick try, not
+    # for unattended scanning.
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/reddit/summary
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DB_PATH
+        value: /var/data/xyon.db
+      - key: REDDIT_SCAN_CLIENT_ID
+        sync: false   # paste in Render dashboard
+      - key: REDDIT_SCAN_SECRET
+        sync: false
+      - key: REDDIT_USER_AGENT
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false   # optional — leave unset to disable AI drafts
