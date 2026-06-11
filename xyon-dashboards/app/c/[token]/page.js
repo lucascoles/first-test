@@ -1,36 +1,38 @@
 import { readTab } from "@/lib/sheets";
-import { DATA_TAB, TOKENS_TAB, COLUMNS, EVENTS } from "@/lib/config";
+import { readCreatorRows } from "@/lib/bigquery";
+import { TOKENS_TAB, EVENTS } from "@/lib/config";
 import Charts from "./Charts";
-export const revalidate = 300; // cache sheet reads for 5 minutes
-// The feed's month column renders like "01/06/2026" (day/month/year).
-// Normalize to "2026-06" so labels are clean and sort correctly.
+export const revalidate = 300; // cache token + data reads for 5 minutes
+// Normalize the month column to "2026-06" so labels are clean and sort
+// correctly. BigQuery returns DATE columns as objects whose .value is
+// the "2026-06-01" string form.
 const monthStr = (v) => {
-  const s = String(v ?? "").trim();
-  const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2, "0")}`;
+  const s = String(
+    v && typeof v === "object" && "value" in v ? v.value : v ?? ""
+  ).trim();
   const ymd = s.match(/^(\d{4})-(\d{2})/);
   if (ymd) return `${ymd[1]}-${ymd[2]}`;
+  const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2, "0")}`;
   return s || "n/a";
 };
 async function getCreatorData(token) {
-  // 1. Which creator does this token belong to?
+  // 1. Which creator does this token belong to? (Tokens live in the sheet.)
   const tokenRows = await readTab(process.env.TOKENS_SHEET_ID, TOKENS_TAB);
   const match = tokenRows.find((r) => r["Token"] === token);
   if (!match) return null;
   const creatorId = match["Creator Code"];
-  // 2. Read the whole feed, then keep only this creator's rows. This
-  //    filtering happens on the server, so other creators' data never
-  //    reaches the browser.
-  const all = await readTab(process.env.DATA_SHEET_ID, DATA_TAB);
-  const mine = all.filter((r) => r[COLUMNS.creatorId] === creatorId);
-  const creatorName = mine[0]?.[COLUMNS.creatorName] || creatorId;
-  // 3. Clean strings into numbers and month labels.
+  // 2. Ask BigQuery for this creator's rows only. The filtering happens in
+  //    the query itself, so other creators' data never reaches the browser.
+  const mine = await readCreatorRows(creatorId);
+  const creatorName = mine[0]?.creatorName || creatorId;
+  // 3. Clean values into plain numbers and month labels.
   const num = (v) => Number(String(v).replace(/[^0-9.-]/g, "")) || 0;
   const rows = mine.map((r) => ({
-    date: monthStr(r[COLUMNS.date]),
-    event: String(r[COLUMNS.event] ?? ""),
-    qty: num(r[COLUMNS.qty]),
-    amount: num(r[COLUMNS.amount]),
+    date: monthStr(r.date),
+    event: String(r.event ?? ""),
+    qty: num(r.qty),
+    amount: num(r.amount),
   }));
   // 4. Totals across all of this creator's rows. Rows whose event we don't
   //    recognize still count toward total conversions and earnings.
