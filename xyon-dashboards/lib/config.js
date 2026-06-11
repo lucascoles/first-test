@@ -1,21 +1,18 @@
 // ============================================================
-// EDIT THIS BLOCK TO MATCH YOUR DATA, THEN STOP.
+// EDIT THIS BLOCK TO MATCH YOUR SHEETS, THEN STOP.
 // ============================================================
-// The BigQuery table behind the "Influencer Overview" Looker Studio
-// page. Full name, as "project.dataset.table". Find it in BigQuery
-// Studio, or in Looker Studio under Resource -> Manage added data
-// sources.
-export const BQ_TABLE = "your-project.your_dataset.your_table";
-// Where your dataset lives. Leave blank ("") for US/EU multi-region
-// datasets; otherwise set it, e.g. "australia-southeast1".
-export const BQ_LOCATION = "";
-// The Google Sheet tab that maps a secret token to a creator. The
-// "Creator Code" column must hold the influencer_name exactly as it
-// appears in BigQuery (e.g. "Jack Folkes").
+// The tab (inside the DATA_SHEET_ID spreadsheet) holding the payout
+// feed. Create it with Extract from the connected rpt_influencer_payout
+// tab and rename it to "data".
+export const DATA_TAB = "data";
+// The tab (inside the TOKENS_SHEET_ID spreadsheet) that maps a secret
+// token to a creator. Its "Creator Code" column holds the influencer_id
+// from the feed, e.g. "INF0130".
 export const TOKENS_TAB = "Tokens";
-// Column names, exactly as they appear in your BigQuery table.
-// The table is monthly: one row per influencer/event/month.
+// Column names, exactly as they appear in the feed's header row.
+// The feed is monthly: one row per influencer/event/month.
 export const COLUMNS = {
+  creatorId: "influencer_id",
   creatorName: "influencer_name",
   date: "month",
   event: "event",

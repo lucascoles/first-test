@@ -1,30 +1,36 @@
 import { readTab } from "@/lib/sheets";
-import { readCreatorRows } from "@/lib/bigquery";
-import { TOKENS_TAB, EVENTS } from "@/lib/config";
+import { DATA_TAB, TOKENS_TAB, COLUMNS, EVENTS } from "@/lib/config";
 import Charts from "./Charts";
-export const revalidate = 300; // cache token + data reads for 5 minutes
+export const revalidate = 300; // cache sheet reads for 5 minutes
+// The feed's month column renders like "01/06/2026" (day/month/year).
+// Normalize to "2026-06" so labels are clean and sort correctly.
+const monthStr = (v) => {
+  const s = String(v ?? "").trim();
+  const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (dmy) return `${dmy[3]}-${dmy[2].padStart(2, "0")}`;
+  const ymd = s.match(/^(\d{4})-(\d{2})/);
+  if (ymd) return `${ymd[1]}-${ymd[2]}`;
+  return s || "n/a";
+};
 async function getCreatorData(token) {
-  // 1. Which creator does this token belong to? (Tokens live in the sheet.)
-  const tokenRows = await readTab(TOKENS_TAB);
+  // 1. Which creator does this token belong to?
+  const tokenRows = await readTab(process.env.TOKENS_SHEET_ID, TOKENS_TAB);
   const match = tokenRows.find((r) => r["Token"] === token);
   if (!match) return null;
-  const creatorName = match["Creator Code"];
-  // 2. Ask BigQuery for this creator's rows only. The filtering happens in
-  //    the query itself, so other creators' data never reaches the browser.
-  const mine = await readCreatorRows(creatorName);
-  // 3. Clean values into plain numbers and date strings. BigQuery returns
-  //    DATE/TIMESTAMP columns as objects whose .value is the string form.
+  const creatorId = match["Creator Code"];
+  // 2. Read the whole feed, then keep only this creator's rows. This
+  //    filtering happens on the server, so other creators' data never
+  //    reaches the browser.
+  const all = await readTab(process.env.DATA_SHEET_ID, DATA_TAB);
+  const mine = all.filter((r) => r[COLUMNS.creatorId] === creatorId);
+  const creatorName = mine[0]?.[COLUMNS.creatorName] || creatorId;
+  // 3. Clean strings into numbers and month labels.
   const num = (v) => Number(String(v).replace(/[^0-9.-]/g, "")) || 0;
-  const dateStr = (v) =>
-    v && typeof v === "object" && "value" in v
-      ? String(v.value).slice(0, 10)
-      : String(v ?? "n/a");
-  // The data is monthly, so show "2026-05" rather than a full date.
   const rows = mine.map((r) => ({
-    date: dateStr(r.date).slice(0, 7),
-    event: String(r.event ?? ""),
-    qty: num(r.qty),
-    amount: num(r.amount),
+    date: monthStr(r[COLUMNS.date]),
+    event: String(r[COLUMNS.event] ?? ""),
+    qty: num(r[COLUMNS.qty]),
+    amount: num(r[COLUMNS.amount]),
   }));
   // 4. Totals across all of this creator's rows. Rows whose event we don't
   //    recognize still count toward total conversions and earnings.
@@ -38,7 +44,7 @@ async function getCreatorData(token) {
     },
     { consultations: 0, retailSales: 0, conversions: 0, earnings: 0 }
   );
-  // 5. Group rows by date so the chart is one clean point per day.
+  // 5. Group rows by month so the chart is one clean point per month.
   const byDate = {};
   for (const r of rows) {
     if (!byDate[r.date]) {

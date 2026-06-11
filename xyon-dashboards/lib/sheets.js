@@ -13,10 +13,10 @@ function getSheetsClient() {
   return google.sheets({ version: "v4", auth });
 }
 // Reads a whole tab and returns one object per row, keyed by the header row.
-export async function readTab(tabName) {
+export async function readTab(spreadsheetId, tabName) {
   const sheets = getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.SHEET_ID,
+    spreadsheetId,
     range: tabName,
   });
   const rows = res.data.values || [];
