@@ -14,9 +14,10 @@ export const BQ_LOCATION = "";
 // appears in BigQuery (e.g. "Jack Folkes").
 export const TOKENS_TAB = "Tokens";
 // Column names, exactly as they appear in your BigQuery table.
+// The table is monthly: one row per influencer/event/month.
 export const COLUMNS = {
   creatorName: "influencer_name",
-  date: "date", // CONFIRM: the report has a date filter, but the column name isn't visible in it
+  date: "month",
   event: "event",
   qty: "qty",
   amount: "amount",

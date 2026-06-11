@@ -19,8 +19,9 @@ async function getCreatorData(token) {
     v && typeof v === "object" && "value" in v
       ? String(v.value).slice(0, 10)
       : String(v ?? "n/a");
+  // The data is monthly, so show "2026-05" rather than a full date.
   const rows = mine.map((r) => ({
-    date: dateStr(r.date),
+    date: dateStr(r.date).slice(0, 7),
     event: String(r.event ?? ""),
     qty: num(r.qty),
     amount: num(r.amount),

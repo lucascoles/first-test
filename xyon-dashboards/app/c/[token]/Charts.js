@@ -15,7 +15,7 @@ export default function Charts({ series }) {
   }
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-      <div className="text-xs text-neutral-400 mb-4">Conversions over time</div>
+      <div className="text-xs text-neutral-400 mb-4">Conversions by month</div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={series}>
           <CartesianGrid stroke="rgba(255,255,255,0.06)" />
