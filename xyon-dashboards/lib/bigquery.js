@@ -12,22 +12,21 @@ function getBigQueryClient() {
 }
 // Returns only the given creator's rows. The WHERE clause runs inside
 // BigQuery, so other creators' data never leaves the warehouse.
-export async function readCreatorRows(creatorCode) {
+export async function readCreatorRows(creatorName) {
   const bigquery = getBigQueryClient();
   const col = (name) => "`" + name.replace(/`/g, "") + "`";
   const query = `
     SELECT
       ${col(COLUMNS.date)} AS date,
-      ${col(COLUMNS.clicks)} AS clicks,
-      ${col(COLUMNS.redemptions)} AS redemptions,
-      ${col(COLUMNS.revenue)} AS revenue,
-      ${col(COLUMNS.commission)} AS commission
+      ${col(COLUMNS.event)} AS event,
+      ${col(COLUMNS.qty)} AS qty,
+      ${col(COLUMNS.amount)} AS amount
     FROM \`${BQ_TABLE.replace(/`/g, "")}\`
-    WHERE ${col(COLUMNS.creatorCode)} = @creatorCode
+    WHERE ${col(COLUMNS.creatorName)} = @creatorName
   `;
   const [rows] = await bigquery.query({
     query,
-    params: { creatorCode },
+    params: { creatorName },
     ...(BQ_LOCATION ? { location: BQ_LOCATION } : {}),
   });
   return rows;
