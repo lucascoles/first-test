@@ -1,25 +1,30 @@
 import { readTab } from "@/lib/sheets";
-import { DATA_TAB, TOKENS_TAB, COLUMNS } from "@/lib/config";
+import { readCreatorRows } from "@/lib/bigquery";
+import { TOKENS_TAB } from "@/lib/config";
 import Charts from "./Charts";
-export const revalidate = 300; // cache sheet reads for 5 minutes
+export const revalidate = 300; // cache token + data reads for 5 minutes
 async function getCreatorData(token) {
-  // 1. Which creator does this token belong to?
+  // 1. Which creator does this token belong to? (Tokens live in the sheet.)
   const tokenRows = await readTab(TOKENS_TAB);
   const match = tokenRows.find((r) => r["Token"] === token);
   if (!match) return null;
   const creatorCode = match["Creator Code"];
-  // 2. Read everything, then keep only this creator's rows. This filtering
-  //    happens on the server, so other creators' data never reaches the browser.
-  const all = await readTab(DATA_TAB);
-  const mine = all.filter((r) => r[COLUMNS.creatorCode] === creatorCode);
-  // 3. Clean strings into numbers.
+  // 2. Ask BigQuery for this creator's rows only. The filtering happens in
+  //    the query itself, so other creators' data never reaches the browser.
+  const mine = await readCreatorRows(creatorCode);
+  // 3. Clean values into plain numbers and date strings. BigQuery returns
+  //    DATE/TIMESTAMP columns as objects whose .value is the string form.
   const num = (v) => Number(String(v).replace(/[^0-9.-]/g, "")) || 0;
+  const dateStr = (v) =>
+    v && typeof v === "object" && "value" in v
+      ? String(v.value).slice(0, 10)
+      : String(v ?? "n/a");
   const rows = mine.map((r) => ({
-    date: r[COLUMNS.date] || "n/a",
-    clicks: num(r[COLUMNS.clicks]),
-    redemptions: num(r[COLUMNS.redemptions]),
-    revenue: num(r[COLUMNS.revenue]),
-    commission: num(r[COLUMNS.commission]),
+    date: dateStr(r.date),
+    clicks: num(r.clicks),
+    redemptions: num(r.redemptions),
+    revenue: num(r.revenue),
+    commission: num(r.commission),
   }));
   // 4. Totals across all of this creator's rows.
   const totals = rows.reduce(
