@@ -4,3 +4,8 @@ data/*.db
 data/*.db-journal
 data/*.db-shm
 data/*.db-wal
+
+# Xcode
+ios/**/xcuserdata/
+ios/**/*.xcuserstate
+ios/**/DerivedData/
